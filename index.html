@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1B5FA6">
+<meta name="theme-color" content="#12513D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Jourly">
 <link rel="manifest" href="manifest.json">
@@ -355,7 +355,7 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
   /* ---------- État ---------- */
-  var BLANK = { v: 1, palette: 'ocean', jourRevenu: 25, soldePrecedent: 0, reporte: '', backup: null, revenus: [], charges: [], chargesExcep: [], depensesJour: {}, notes: {} };
+  var BLANK = { v: 1, palette: 'foret', jourRevenu: 25, soldePrecedent: 0, reporte: '', backup: null, datesRevenu: {}, revenus: [], charges: [], chargesExcep: [], depensesJour: {}, notes: {} };
   function normItems(a) {
     if (!Array.isArray(a)) return [];
     return a.map(function (it) { return { id: String(it && it.id != null ? it.id : uid()), nom: String((it && it.nom) || ''), montant: +(it && it.montant) || 0, payee: !!(it && it.payee) }; });
@@ -364,13 +364,17 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
     var s = clone(BLANK);
     if (!o || typeof o !== 'object') return s;
     o = clone(o);
-    s.palette = PALETTES[o.palette] ? o.palette : 'ocean';
+    s.palette = PALETTES[o.palette] ? o.palette : 'foret';
     var j = parseInt(o.jourRevenu, 10); s.jourRevenu = (j >= 1 && j <= 31) ? j : 25;
     s.soldePrecedent = +o.soldePrecedent || 0;
     s.revenus = normItems(o.revenus); s.charges = normItems(o.charges); s.chargesExcep = normItems(o.chargesExcep);
     s.depensesJour = (o.depensesJour && typeof o.depensesJour === 'object') ? o.depensesJour : {};
     s.notes = (o.notes && typeof o.notes === 'object') ? o.notes : {};
     s.reporte = typeof o.reporte === 'string' ? o.reporte : '';
+    s.datesRevenu = {};
+    if (o.datesRevenu && typeof o.datesRevenu === 'object') Object.keys(o.datesRevenu).forEach(function (k) {
+      if (/^\d{4}-\d{2}$/.test(k) && /^\d{4}-\d{2}-\d{2}$/.test(String(o.datesRevenu[k]))) s.datesRevenu[k] = String(o.datesRevenu[k]);
+    });
     s.backup = (o.backup && typeof o.backup === 'object') ? { solde: +o.backup.solde || 0, payees: Array.isArray(o.backup.payees) ? o.backup.payees.map(String) : [] } : null;
     return s;
   }
@@ -382,15 +386,23 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
   /* ---------- Calculs ---------- */
   function compute() {
     var today = sod(new Date()), jr = S.jourRevenu;
-    function revDate(y, m) {
+    function mk(y, m) { var f = new Date(y, m, 1); return f.getFullYear() + '-' + pad(f.getMonth() + 1); }
+    function nominal(y, m) {
       var f = new Date(y, m, 1), yy = f.getFullYear(), mm = f.getMonth();
       var last = new Date(yy, mm + 1, 0).getDate();
       return new Date(yy, mm, Math.min(jr, last));
     }
-    var start = revDate(today.getFullYear(), today.getMonth());
-    if (start > today) start = revDate(today.getFullYear(), today.getMonth() - 1);
-    var next = revDate(start.getFullYear(), start.getMonth() + 1);
-    var prevStart = revDate(start.getFullYear(), start.getMonth() - 1);
+    function revDate(y, m) { var o = S.datesRevenu && S.datesRevenu[mk(y, m)]; return o ? fromKey(o) : nominal(y, m); }
+    var sy = today.getFullYear(), sm = today.getMonth(), start = null;
+    for (var kk = 1; kk >= -3; kk--) {
+      var dd = revDate(sy, sm + kk);
+      if (dd <= today) { start = dd; var base = new Date(sy, sm + kk, 1); sy = base.getFullYear(); sm = base.getMonth(); break; }
+    }
+    if (!start) start = nominal(sy, sm);
+    var next = revDate(sy, sm + 1);
+    if (next <= start) next = nominal(sy, sm + 1);
+    var prevStart = revDate(sy, sm - 1);
+    if (prevStart >= start) prevStart = nominal(sy, sm - 1);
     var n = diffDays(start, next);
     function sum(a) { return a.reduce(function (s, x) { return s + (+x.montant || 0); }, 0); }
     var rev = sum(S.revenus), ch = sum(S.charges), ex = sum(S.chargesExcep);
@@ -413,7 +425,7 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
       rev: rev, ch: ch, ex: ex, avail: avail, budget: budget, rows: rows,
       norme: norme, totalDep: totalDep, solde: avail - totalDep,
       joursApres: Math.max(0, n - elapsed), unpaid: (ch + ex) - paid,
-      periodKey: dkey(start), prevStart: prevStart, soldePrec: avail - prevDep
+      periodKey: dkey(nominal(sy, sm)), startKey: mk(sy, sm), nextKey: mk(sy, sm + 1), prevStart: prevStart, soldePrec: avail - prevDep
     };
   }
 
@@ -497,7 +509,11 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
     return '<div class="stack">' +
       '<section class="card"><div class="sec-h"><h2>Période en cours</h2><span class="sub">' + fmtShort(c.start) + ' → ' + fmtShort(c.end) + ' · ' + c.n + ' jours</span></div>' +
       '<p class="hint">Le budget par jour est le montant disponible divisé par le nombre de jours avant le prochain revenu.</p>' +
-      '<div class="inline"><label for="jour-revenu" class="unit">Revenus reçus le</label><input class="in num" id="jour-revenu" data-bind="jour" type="number" min="1" max="31" value="' + S.jourRevenu + '" style="max-width:76px"><span class="unit">du mois</span></div></section>' +
+      '<div class="inline"><label for="jour-revenu" class="unit">Revenus reçus le</label><input class="in num" id="jour-revenu" data-bind="jour" type="number" min="1" max="31" value="' + S.jourRevenu + '" style="max-width:76px"><span class="unit">du mois</span></div>' +
+      '<p class="hint" style="margin-top:12px">Ton revenu tombe un jour non ouvré ? Indique la date réelle : la période et le budget par jour sont recalculés.</p>' +
+      '<div class="inline"><label for="rd-start" class="unit">Revenu de cette période reçu le</label><input class="in" type="date" id="rd-start" data-bind="rdate" data-mk="' + c.startKey + '" value="' + dkey(c.start) + '"></div>' +
+      '<div class="inline" style="margin-top:8px"><label for="rd-next" class="unit">Prochain revenu le</label><input class="in" type="date" id="rd-next" data-bind="rdate" data-mk="' + c.nextKey + '" value="' + dkey(c.next) + '"></div>' +
+      ((S.datesRevenu[c.startKey] || S.datesRevenu[c.nextKey]) ? '<button class="btn ghost" style="margin-top:10px" data-act="rdate-reset" data-s="' + c.startKey + '" data-n="' + c.nextKey + '">Revenir au jour habituel</button>' : '') + '</section>' +
       '<div class="tiles">' +
       '<div class="tile"><div class="l">Budget par jour</div><div class="v" id="s-budget">' + money(c.budget) + '</div></div>' +
       '<div class="tile"><div class="l">Norme (écart cumulé)</div><div class="v ' + (c.norme >= 0 ? 'ok' : 'ko') + '" id="s-norme">' + signed(c.norme) + '</div></div>' +
@@ -525,7 +541,7 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
     }
     var ref = ' data-kind="' + kind + '" data-id="' + esc(it.id) + '"';
     return '<div class="row' + (payable && it.payee ? ' paid' : '') + '">' +
-      (payable ? '<button class="chk" role="checkbox" aria-checked="' + !!it.payee + '" aria-label="Marquer « ' + esc(it.nom) + ' » comme payée" data-act="pay"' + ref + '>' + (it.payee ? icon('check') : '') + '</button>' : '') +
+      (payable ? '<button class="chk" role="checkbox" aria-checked="' + !!it.payee + '" aria-label="Marquer « ' + esc(it.nom) + (kind === 'revenus' ? ' » comme reçu' : ' » comme payée') + '" data-act="pay"' + ref + '>' + (it.payee ? icon('check') : '') + '</button>' : '') +
       '<span class="grow nm">' + esc(it.nom) + '</span><span class="amt-v">' + money(it.montant) + '</span>' +
       '<button class="ibtn" aria-label="Modifier « ' + esc(it.nom) + ' »" data-act="edit"' + ref + '>' + icon('edit') + '</button>' +
       '<button class="ibtn" aria-label="Supprimer « ' + esc(it.nom) + ' »" data-act="del"' + ref + '>' + icon('del') + '</button></div>';
@@ -536,7 +552,7 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
     var paidN = items.filter(function (x) { return x.payee; }).length;
     var unpaid = items.reduce(function (s, x) { return s + (x.payee ? 0 : (+x.montant || 0)); }, 0);
     return '<section class="card"><div class="sec-h"><h2>' + title + '</h2><span class="sec-t num">' + money(total) + '</span></div>' +
-      (payable ? '<p class="hint">' + paidN + ' sur ' + items.length + ' payées · reste à payer ' + money(unpaid) + '</p>' : '') +
+      (payable ? (kind === 'revenus' ? '<p class="hint">' + paidN + ' sur ' + items.length + ' reçu' + (paidN > 1 ? 's' : '') + ' · reste à recevoir ' + money(unpaid) + '</p>' : '<p class="hint">' + paidN + ' sur ' + items.length + ' payées · reste à payer ' + money(unpaid) + '</p>') : '') +
       '<div class="list">' + (items.length ? items.map(function (it) { return lineRow(kind, it, payable); }).join('') : '<p class="empty">' + emptyMsg + '</p>') + '</div>' +
       '<form class="addrow" data-form="add" data-kind="' + kind + '">' +
       '<label class="sr" for="add-' + kind + '-nom">Nom</label><input class="in name" id="add-' + kind + '-nom" name="nom" placeholder="Nom" required>' +
@@ -546,17 +562,17 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
 
   function newPeriodCard(c) {
     var done = S.reporte === c.periodKey;
-    var nCh = S.charges.concat(S.chargesExcep).filter(function (x) { return x.payee; }).length;
+    var nCh = S.charges.concat(S.chargesExcep, S.revenus).filter(function (x) { return x.payee; }).length;
     var body;
     if (done) {
-      body = '<p class="hint">Déjà démarrée pour la période du ' + fmtShort(c.start) + '. Annuler remet le solde reporté et les charges cochées comme avant le report.</p>' +
+      body = '<p class="hint">Déjà démarrée pour la période du ' + fmtShort(c.start) + '. Annuler remet le solde reporté et les cases cochées comme avant le report.</p>' +
         '<button class="btn ghost" data-act="np-undo">Annuler et rétablir le bouton</button>';
     } else if (UI.np) {
       body = '<p class="hint">Le solde reporté deviendra ' + money(c.soldePrec) + ' (reste de la période du ' + fmtShort(c.prevStart) + ' au ' + fmtShort(addDays(c.start, -1)) + '). ' +
-        nCh + ' charge' + (nCh > 1 ? 's payées seront décochées' : ' payée sera décochée') + '.</p>' +
+        nCh + (nCh > 1 ? ' lignes cochées (charges payées, revenus reçus) seront décochées' : ' ligne cochée (charge payée ou revenu reçu) sera décochée') + '.</p>' +
         '<div class="addrow" style="margin-top:0"><button class="btn" data-act="np-ok">Confirmer</button><button class="btn ghost" data-act="np-cancel">Annuler</button></div>';
     } else {
-      body = '<p class="hint">À faire au début de la période : reporte le reste de la période précédente (' + money(c.soldePrec) + ') et décoche les charges payées.</p>' +
+      body = '<p class="hint">À faire au début de la période : reporte le reste de la période précédente (' + money(c.soldePrec) + ') et décoche les charges payées et les revenus reçus.</p>' +
         '<button class="btn" data-act="np-ask">Démarrer la nouvelle période</button>';
     }
     return '<section class="card"><div class="sec-h"><h2>Nouvelle période</h2></div>' + body + '</section>';
@@ -566,7 +582,7 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
     return '<div class="stack">' + newPeriodCard(c) +
       '<section class="card"><div class="sec-h"><h2>Solde reporté</h2></div><p class="hint">Ce qu’il restait à la fin de la période précédente.</p>' +
       '<div class="inline"><label class="sr" for="solde-prec">Solde reporté en CHF</label><input class="in num" id="solde-prec" data-bind="solde" inputmode="decimal" value="' + S.soldePrecedent + '"><span class="unit">CHF</span></div></section>' +
-      section('revenus', 'Revenus', S.revenus, false, 'Aucun revenu. Ajoute ton salaire pour calculer le budget par jour.') +
+      section('revenus', 'Revenus', S.revenus, true, 'Aucun revenu. Ajoute ton salaire pour calculer le budget par jour.') +
       section('charges', 'Charges fixes', S.charges, true, 'Aucune charge fixe. Ajoute loyer, assurances, abonnements.') +
       section('chargesExcep', 'Charges exceptionnelles', S.chargesExcep, true, 'Aucune charge exceptionnelle sur cette période.') +
       '<section class="card recap"><h2>Récapitulatif</h2>' +
@@ -661,22 +677,23 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
     else if (act === 'edit') { UI.edit = { kind: kind, id: id }; UI.del = null; UI.focus = 'edit-nom'; render(); }
     else if (act === 'edit-cancel') { UI.edit = null; render(); }
     else if (act === 'del') { UI.del = { kind: kind, id: id }; UI.edit = null; render(); }
+    else if (act === 'rdate-reset') { delete S.datesRevenu[t.getAttribute('data-s')]; delete S.datesRevenu[t.getAttribute('data-n')]; persist(); render(); flash('Jour habituel rétabli'); }
     else if (act === 'del-cancel') { UI.del = null; render(); }
     else if (act === 'np-ask') { UI.np = true; render(); }
     else if (act === 'np-cancel') { UI.np = false; render(); }
     else if (act === 'np-undo') {
       if (S.backup) {
         S.soldePrecedent = S.backup.solde;
-        S.charges.concat(S.chargesExcep).forEach(function (x) { x.payee = S.backup.payees.indexOf(x.id) >= 0; });
+        S.charges.concat(S.chargesExcep, S.revenus).forEach(function (x) { x.payee = S.backup.payees.indexOf(x.id) >= 0; });
       }
       S.reporte = ''; S.backup = null; persist(); render();
       flash('Report annulé : le bouton est de nouveau disponible');
     }
     else if (act === 'np-ok') {
       var c0 = C || compute();
-      S.backup = { solde: S.soldePrecedent, payees: S.charges.concat(S.chargesExcep).filter(function (x) { return x.payee; }).map(function (x) { return x.id; }) };
+      S.backup = { solde: S.soldePrecedent, payees: S.charges.concat(S.chargesExcep, S.revenus).filter(function (x) { return x.payee; }).map(function (x) { return x.id; }) };
       S.soldePrecedent = round2(c0.soldePrec);
-      S.charges.concat(S.chargesExcep).forEach(function (x) { x.payee = false; });
+      S.charges.concat(S.chargesExcep, S.revenus).forEach(function (x) { x.payee = false; });
       S.reporte = c0.periodKey; UI.np = false; persist(); render();
       flash('Nouvelle période démarrée : solde reporté ' + money(S.soldePrecedent));
     }
@@ -718,6 +735,16 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
     } else if (b === 'jour') {
       var j = parseInt(t.value, 10); if (!(j >= 1 && j <= 31)) { t.value = S.jourRevenu; return; }
       S.jourRevenu = j; persist(); render();
+    } else if (b === 'rdate') {
+      var rk = t.getAttribute('data-mk'), had = Object.prototype.hasOwnProperty.call(S.datesRevenu, rk), prev = S.datesRevenu[rk];
+      if (/^\d{4}-\d{2}-\d{2}$/.test(t.value)) S.datesRevenu[rk] = t.value; else delete S.datesRevenu[rk];
+      var c2 = compute();
+      var ignored = (c2.startKey === rk && dkey(c2.start) !== t.value) || (c2.nextKey === rk && dkey(c2.next) !== t.value) || (c2.startKey !== rk && c2.nextKey !== rk && !!t.value);
+      if (c2.n < 1 || c2.n > 62 || ignored) {
+        if (had) S.datesRevenu[rk] = prev; else delete S.datesRevenu[rk];
+        flash('Date impossible : elle doit rester cohérente avec la période (entre 1 et 62 jours).');
+      } else persist();
+      render();
     } else if (b === 'day') {
       var k = t.getAttribute('data-key'), v = parseNum(t.value);
       if (isNaN(v) || v <= 0) { delete S.depensesJour[k]; t.value = ''; }
@@ -781,10 +808,10 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
   }
   var TUTO = [
     ['Bienvenue dans Jourly', '<p>Jourly te dit <strong>combien tu peux dépenser aujourd’hui</strong>.</p><p>Calcul : <code>revenus + solde reporté − charges fixes − charges exceptionnelles</code>, divisé par le nombre de jours avant ton prochain revenu.</p><p>Compte environ 10 minutes par mois pour la préparation et 2 minutes par jour.</p>'],
-    ['1. Prépare ton mois', '<p>Va dans l’onglet <strong>Budget mensuel</strong> :</p><p>• indique le jour du mois où tu reçois ton revenu ;<br>• ajoute tes revenus, tes charges fixes et tes charges exceptionnelles ;<br>• renseigne le solde reporté (ce qui restait de la période précédente).</p><p>Chaque ligne peut être modifiée ou supprimée. Quand une charge est payée, coche-la : elle passe en vert.</p>'],
+    ['1. Prépare ton mois', '<p>Va dans l’onglet <strong>Budget mensuel</strong> :</p><p>• indique le jour du mois où tu reçois ton revenu ;<br>• ajoute tes revenus, tes charges fixes et tes charges exceptionnelles ;<br>• renseigne le solde reporté (ce qui restait de la période précédente).</p><p>Chaque ligne peut être modifiée ou supprimée. Coche chaque charge payée et chaque revenu reçu : la ligne passe en vert.</p>'],
     ['2. Note tes dépenses', '<p>Dans <strong>Budget jour</strong>, saisis ce que tu dépenses chaque jour (tes charges fixes n’ont pas à y figurer).</p><p>Le tableau montre pour chaque jour : dépensé, maximum, écart et solde. Tu peux aussi écrire une note pour la période.</p>'],
     ['3. Lis ton tableau de bord', '<p>Le <strong>Tableau de bord</strong> affiche ton budget du jour et ce qui te reste.</p><p>La <strong>norme</strong> est la somme des écarts (budget du jour moins dépensé) des jours écoulés : positive, tu as dépensé moins que prévu ; négative, tu as dépassé.</p>'],
-    ['4. Chaque nouvelle période', '<p>Au début de chaque période, utilise le bouton <strong>Démarrer la nouvelle période</strong> (onglet Budget mensuel) : il reporte le reste et décoche les charges payées.</p><p>Tu t’es trompé ? Le bouton d’annulation remet tout comme avant.</p>'],
+    ['4. Chaque nouvelle période', '<p>Au début de chaque période, utilise le bouton <strong>Démarrer la nouvelle période</strong> (onglet Budget mensuel) : il reporte le reste et décoche les charges payées et les revenus reçus.</p><p>Revenu versé un autre jour (week-end, jour férié) ? Dans <strong>Budget jour</strong>, indique la date réelle de réception.</p><p>Tu t’es trompé ? Le bouton d’annulation remet tout comme avant.</p>'],
     ['5. Protège tes données', '<p>Tes données sont enregistrées <strong>uniquement sur cet appareil</strong>. Si tu effaces les données du navigateur ou désinstalles l’app, elles disparaissent.</p><p>En bas de page, <strong>Exporter mes données</strong> crée un fichier de sauvegarde ; <strong>Importer un fichier</strong> le recharge. Fais-le régulièrement.</p><p>Tu peux rouvrir ce guide avec le bouton <strong>Tutoriel</strong>.</p>']
   ];
   var tIdx = 0;
