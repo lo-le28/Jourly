@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12513D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Jourly">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Jourly</title>
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html,body{margin:0}</style>
+<style>
+/* Layout : une colonne de pilotage (760px max). Une seule surface pleine couleur, le solde ;
+   le reste reste calme. Six palettes interchangeables via data-palette, chacune en clair et en sombre. */
+:root{
+  --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --bg:#F2F5F9; --surface:#FFFFFF; --surface2:#EAEFF5; --line:#DCE3EC;
+  --fg:#14202E; --muted:#5B6B7E;
+  --brand:#1B5FA6; --on-brand:#FFFFFF; --brand-soft:#E3EEFA;
+  --accent:#0A7560; --accent-soft:#DDF3EC;
+  --good:#167A47; --good-soft:#E3F4EA; --on-good:#FFFFFF;
+  --bad:#B3302F; --bad-soft:#FBE9E9;
+  --r:14px;
+}
+:root[data-palette="violet"]{
+  --bg:#F5F4FB; --surface:#FFFFFF; --surface2:#ECEAF7; --line:#DEDBF0;
+  --fg:#1B1833; --muted:#625E85;
+  --brand:#5546B8; --on-brand:#FFFFFF; --brand-soft:#ECEAFB;
+  --accent:#B83D17; --accent-soft:#FBE9E2;
+}
+:root[data-palette="ardoise"]{
+  --bg:#F3F4F5; --surface:#FFFFFF; --surface2:#E9EBED; --line:#DADDE1;
+  --fg:#171B20; --muted:#5C646E;
+  --brand:#2B3644; --on-brand:#FFFFFF; --brand-soft:#E6EAEF;
+  --accent:#8F5A06; --accent-soft:#F7ECD6;
+}
+:root[data-palette="foret"]{
+  --bg:#F3F6F2; --surface:#FFFFFF; --surface2:#E8EFE9; --line:#D6E0D8;
+  --fg:#14231C; --muted:#5A6B61;
+  --brand:#12513D; --on-brand:#FFFFFF; --brand-soft:#DFEEE6;
+  --accent:#B87408; --accent-soft:#FAEFD9;
+}
+:root[data-palette="rose"]{
+  --bg:#FAF4F7; --surface:#FFFFFF; --surface2:#F3E8EE; --line:#E7D6DF;
+  --fg:#2A1420; --muted:#7A5E6D;
+  --brand:#A3306B; --on-brand:#FFFFFF; --brand-soft:#F8E3EE;
+  --accent:#0F7C8C; --accent-soft:#DDF1F4;
+}
+:root[data-palette="orange"]{
+  --bg:#F8F5F2; --surface:#FFFFFF; --surface2:#F0EAE4; --line:#E3DBD2;
+  --fg:#1F1A16; --muted:#6B6158;
+  --brand:#C2410C; --on-brand:#FFFFFF; --brand-soft:#FCE8DC;
+  --accent:#1B3A5C; --accent-soft:#E2EAF3;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1620; --surface:#16212D; --surface2:#1D2A38; --line:#2A3A4B;
+    --fg:#E8EEF5; --muted:#93A4B8;
+    --brand:#6AAEEA; --on-brand:#08131F; --brand-soft:#162B42;
+    --accent:#3FC9A2; --accent-soft:#12302A;
+    --good:#4CC784; --good-soft:#12301F; --on-good:#0A1F14;
+    --bad:#F07A7A; --bad-soft:#3A1717;
+  }
+  :root:not([data-theme="light"])[data-palette="violet"]{
+    --bg:#12101F; --surface:#1B1830; --surface2:#242040; --line:#322E55;
+    --fg:#EEEBFA; --muted:#A39FC7;
+    --brand:#A396F2; --on-brand:#14102B; --brand-soft:#27214D;
+    --accent:#F28B67; --accent-soft:#3D2018;
+  }
+  :root:not([data-theme="light"])[data-palette="ardoise"]{
+    --bg:#101316; --surface:#181C21; --surface2:#20252B; --line:#2E343B;
+    --fg:#ECEFF2; --muted:#9AA3AE;
+    --brand:#B8C4D2; --on-brand:#10151B; --brand-soft:#232B35;
+    --accent:#E5A845; --accent-soft:#35280F;
+  }
+  :root:not([data-theme="light"])[data-palette="foret"]{
+    --bg:#0E1713; --surface:#15221C; --surface2:#1C2D25; --line:#2A4036;
+    --fg:#E8F1EC; --muted:#94AB9F;
+    --brand:#4FB88A; --on-brand:#07170F; --brand-soft:#173A2B;
+    --accent:#EF9F27; --accent-soft:#3A2A0C;
+  }
+  :root:not([data-theme="light"])[data-palette="rose"]{
+    --bg:#1A1016; --surface:#241821; --surface2:#2E202A; --line:#43303D;
+    --fg:#F6EAF0; --muted:#B598A8;
+    --brand:#E57BAE; --on-brand:#240E19; --brand-soft:#4A2238;
+    --accent:#4DC3D4; --accent-soft:#123A40;
+  }
+  :root:not([data-theme="light"])[data-palette="orange"]{
+    --bg:#16120F; --surface:#1F1915; --surface2:#2A221C; --line:#3E342B;
+    --fg:#F3EDE7; --muted:#AD9F92;
+    --brand:#F08A4B; --on-brand:#1F0E03; --brand-soft:#4A2812;
+    --accent:#7FB0E3; --accent-soft:#14283E;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1620; --surface:#16212D; --surface2:#1D2A38; --line:#2A3A4B;
+  --fg:#E8EEF5; --muted:#93A4B8;
+  --brand:#6AAEEA; --on-brand:#08131F; --brand-soft:#162B42;
+  --accent:#3FC9A2; --accent-soft:#12302A;
+  --good:#4CC784; --good-soft:#12301F; --on-good:#0A1F14;
+  --bad:#F07A7A; --bad-soft:#3A1717;
+}
+:root[data-theme="dark"][data-palette="violet"]{
+  --bg:#12101F; --surface:#1B1830; --surface2:#242040; --line:#322E55;
+  --fg:#EEEBFA; --muted:#A39FC7;
+  --brand:#A396F2; --on-brand:#14102B; --brand-soft:#27214D;
+  --accent:#F28B67; --accent-soft:#3D2018;
+}
+:root[data-theme="dark"][data-palette="ardoise"]{
+  --bg:#101316; --surface:#181C21; --surface2:#20252B; --line:#2E343B;
+  --fg:#ECEFF2; --muted:#9AA3AE;
+  --brand:#B8C4D2; --on-brand:#10151B; --brand-soft:#232B35;
+  --accent:#E5A845; --accent-soft:#35280F;
+}
+:root[data-theme="dark"][data-palette="foret"]{
+  --bg:#0E1713; --surface:#15221C; --surface2:#1C2D25; --line:#2A4036;
+  --fg:#E8F1EC; --muted:#94AB9F;
+  --brand:#4FB88A; --on-brand:#07170F; --brand-soft:#173A2B;
+  --accent:#EF9F27; --accent-soft:#3A2A0C;
+}
+:root[data-theme="dark"][data-palette="rose"]{
+  --bg:#1A1016; --surface:#241821; --surface2:#2E202A; --line:#43303D;
+  --fg:#F6EAF0; --muted:#B598A8;
+  --brand:#E57BAE; --on-brand:#240E19; --brand-soft:#4A2238;
+  --accent:#4DC3D4; --accent-soft:#123A40;
+}
+:root[data-theme="dark"][data-palette="orange"]{
+  --bg:#16120F; --surface:#1F1915; --surface2:#2A221C; --line:#3E342B;
+  --fg:#F3EDE7; --muted:#AD9F92;
+  --brand:#F08A4B; --on-brand:#1F0E03; --brand-soft:#4A2812;
+  --accent:#7FB0E3; --accent-soft:#14283E;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.45;-webkit-text-size-adjust:100%}
+.shell{max-width:760px;margin-inline:auto;padding-inline:16px;padding-block:14px 56px}
+button,input,textarea{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* En-tête */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-block:4px 14px}
+.logo{display:flex;align-items:center;gap:12px;min-width:0}
+.logo svg{flex:none}
+.logo h1{margin:0;font-size:18px;line-height:1.15;font-weight:800;letter-spacing:-.01em}
+.sub{margin-top:3px;font-size:12.5px;color:var(--muted)}
+.right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.swatches{display:flex;gap:8px}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--surface);padding:0;cursor:pointer;box-shadow:0 0 0 1px var(--line)}
+.sw[aria-checked="true"]{box-shadow:0 0 0 2px var(--fg)}
+.sync{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)}
+.sync i{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.sync.saved i{background:var(--good)} .sync.error i{background:var(--bad)}
+
+/* Onglets */
+.tabs{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:12px;margin-bottom:16px}
+.tab{flex:1;border:0;background:transparent;color:var(--muted);font-weight:600;font-size:13.5px;padding:10px 6px;border-radius:9px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:inset 0 -2px 0 var(--accent)}
+
+/* Surfaces */
+.stack{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card h2{margin:0;font-size:15px;font-weight:700}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:4px}
+.sec-t{font-weight:600;font-size:14px}
+.hint{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
+.empty{margin:4px 0 6px;color:var(--muted);font-size:13px}
+.empty-big{display:flex;flex-direction:column;gap:4px;background:var(--brand-soft);border-color:transparent}
+.empty-big span{color:var(--muted)}
+
+.hero{background:var(--brand);color:var(--on-brand);border-radius:18px;padding:20px}
+.eyebrow{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;opacity:.8}
+.big{margin-top:4px;font-size:clamp(30px,9vw,42px);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.hero-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:18px}
+.hero-grid .l{font-size:12px;opacity:.8;margin-bottom:2px}
+.hero-grid .v{font-family:var(--mono);font-weight:600;font-size:16px}
+.bar{height:8px;border-radius:99px;margin-top:18px;overflow:hidden;background:rgba(128,128,128,.35);background:color-mix(in srgb,var(--on-brand) 24%,transparent)}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--on-brand)}
+.bar-l{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:12px;opacity:.85}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.tile .l{font-size:12px;color:var(--muted)}
+.tile .v{margin-top:4px;font-family:var(--mono);font-weight:600;font-size:16px;overflow-wrap:anywhere}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stat{background:var(--surface2);border-radius:10px;padding:10px;text-align:center;min-width:0}
+.stat .l{font-size:11.5px;color:var(--muted)}
+.stat .v{margin-top:3px;font-family:var(--mono);font-weight:600;font-size:13.5px;overflow-wrap:anywhere}
+.ok{color:var(--good)} .ko{color:var(--bad)}
+
+/* Formulaires */
+.in{width:100%;min-width:0;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px;font-weight:500}
+.in.num{text-align:right}
+.btn{border:0;border-radius:10px;padding:10px 16px;min-height:42px;font-weight:700;font-size:13.5px;cursor:pointer;background:var(--brand);color:var(--on-brand)}
+.btn.ghost{background:var(--surface2);color:var(--fg)}
+.btn.bad{background:var(--bad);color:#fff}
+.addrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.addrow .name{flex:2 1 140px} .addrow .amt{flex:1 1 100px} .addrow .date{flex:1 1 140px}
+.inline{display:flex;align-items:center;gap:8px;max-width:260px}
+.unit{color:var(--muted);font-size:13px}
+textarea.in{min-height:84px;resize:vertical;line-height:1.5}
+
+/* Lignes de budget */
+.list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 10px;min-height:48px;border-radius:11px;background:var(--surface2)}
+.row .grow{flex:1 1 120px;min-width:0;overflow-wrap:anywhere}
+.row.paid{background:var(--good-soft);color:var(--good)}
+.row.paid .nm{font-weight:700}
+.row.edit .name{flex:2 1 130px} .row.edit .amt{flex:1 1 90px}
+.amt-v{font-family:var(--mono);font-weight:500;font-size:14px}
+.chk{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:var(--surface);color:var(--on-good);display:grid;place-items:center;padding:0;cursor:pointer}
+.chk svg{width:16px;height:16px}
+.row.paid .chk{background:var(--good);border-color:var(--good)}
+.ibtn{flex:none;width:36px;height:36px;border:0;border-radius:9px;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer}
+.ibtn:hover{background:var(--line);color:var(--fg)}
+.recap{display:flex;flex-direction:column;gap:6px}
+.recap div{display:flex;justify-content:space-between;gap:10px}
+.recap .tot{margin-top:4px;padding-top:10px;border-top:1px solid var(--line);font-weight:800;font-size:15px}
+
+/* Tableau journalier */
+.tablewrap{overflow-x:auto;margin-inline:-16px}
+table{border-collapse:collapse;width:100%;min-width:400px;font-size:13px}
+th{padding:9px 10px;text-align:right;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface2);border-block:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left;padding-left:16px}
+th:last-child,td:last-child{padding-right:16px}
+td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--line);font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td:first-child{font-family:var(--font);font-weight:500}
+tr.good td{background:var(--good-soft)} tr.bad td{background:var(--bad-soft)}
+tr.today td{background:var(--brand-soft);font-weight:600}
+tr.future td{color:var(--muted)}
+.tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-family:var(--font);font-size:11px;font-weight:700}
+.cell-in{width:92px;padding:6px 8px;text-align:right;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);font:500 13px var(--mono);color:var(--fg)}
+tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 32px);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:600;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+
+@media (max-width:520px){
+  .hide-sm{display:none}
+  .stats3{grid-template-columns:1fr}
+  .right{align-items:flex-start}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<style>.foot{margin-top:28px;font-size:12.5px;color:var(--muted)}.foot summary{cursor:pointer;padding:10px 0;font-weight:600}.foot h2{font-size:14px;margin:8px 0 4px;color:var(--fg)}.foot p{margin:6px 0;line-height:1.5}</style>
+<style>
+.dataCard{margin-top:20px}.dataCard h2{font-size:15px;margin:0 0 4px}.dataCard .drow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.dataCard .st{font-size:12.5px;color:var(--muted);margin:8px 0 0;line-height:1.5}
+.tuto{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(10,20,30,.55);padding:16px}
+.tuto.on{display:flex}
+.tuto .box{background:var(--surface);color:var(--fg);border-radius:16px;max-width:440px;width:100%;padding:22px 20px 16px;box-shadow:0 10px 40px rgba(0,0,0,.3);max-height:calc(100% - 32px);overflow:auto}
+.tuto h2{margin:0 0 8px;font-size:19px}.tuto p{margin:8px 0;line-height:1.55;font-size:14.5px}
+.tuto .dots{display:flex;gap:6px;margin:14px 0 4px}.tuto .dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.tuto .dots i.on{background:var(--brand)}
+.tuto .nav{display:flex;justify-content:space-between;gap:8px;margin-top:12px}
+.tuto code{background:var(--surface2);padding:1px 6px;border-radius:6px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top" id="top"></header>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" data-act="tab" data-tab="dashboard" id="tab-dashboard">Tableau de bord</button>
+    <button class="tab" role="tab" data-act="tab" data-tab="journal" id="tab-journal">Budget jour</button>
+    <button class="tab" role="tab" data-act="tab" data-tab="budget" id="tab-budget">Budget mensuel</button>
+  </nav>
+  <main id="view" role="tabpanel"></main>
+  <section class="card dataCard" id="data-card">
+  <h2>Mes données et aide</h2>
+  <p class="st" style="margin-top:0">Tes données restent sur cet appareil. Exporte régulièrement un fichier de sauvegarde pour ne rien perdre ou pour changer d’appareil.</p>
+  <div class="drow">
+    <button class="btn" type="button" id="btn-export">Exporter mes données</button>
+    <button class="btn ghost" type="button" id="btn-import">Importer un fichier</button>
+    <button class="btn ghost" type="button" id="btn-paste">Copier / coller</button>
+    <button class="btn ghost" type="button" id="btn-help">Tutoriel</button>
+  </div>
+  <input type="file" id="file-import" accept=".json,application/json" hidden>
+  <div id="paste-box" hidden>
+    <textarea id="paste-ta" class="in" rows="4" style="width:100%;margin-top:10px;font-size:12px" aria-label="Texte de sauvegarde"></textarea>
+    <div class="drow"><button class="btn ghost" type="button" id="paste-copy">Copier le texte</button><button class="btn ghost" type="button" id="paste-imp">Importer le texte</button></div>
+  </div>
+  <div id="import-confirm" hidden>
+    <p class="st"><strong>Remplacer toutes les données actuelles</strong> par celles du fichier ?</p>
+    <div class="drow"><button class="btn bad" type="button" id="imp-ok">Remplacer</button><button class="btn ghost" type="button" id="imp-cancel">Annuler</button></div>
+  </div>
+  <p class="st" id="data-msg" role="status"></p>
+</section>
+<div class="tuto" id="tuto" role="dialog" aria-modal="true" aria-labelledby="tuto-title">
+  <div class="box">
+    <h2 id="tuto-title"></h2>
+    <div id="tuto-body"></div>
+    <div class="dots" id="tuto-dots"></div>
+    <div class="nav"><button class="btn ghost" type="button" id="tuto-prev">Précédent</button><button class="btn" type="button" id="tuto-next">Suivant</button></div>
+    <div style="text-align:right;margin-top:8px"><button class="btn ghost" type="button" id="tuto-skip" style="min-height:34px;padding:6px 12px">Fermer</button></div>
+  </div>
+</div>
+<details class="foot"><summary>Politique de confidentialité</summary><h2>Politique de confidentialité</h2>
+<p><strong>Dernière mise à jour : 28 octobre 2026</strong></p>
+<p>« Jourly » (compagnon du e-book « Combien je peux dépenser aujourd’hui ? ») est un outil de suivi de budget personnel.</p>
+<p><strong>Données saisies.</strong> Tes revenus, charges, dépenses, notes et réglages.</p>
+<p><strong>Où elles sont stockées.</strong> Uniquement sur ton appareil, dans le stockage local de l’application.</p>
+<p><strong>Aucune collecte.</strong> L’application n’envoie aucune donnée à l’éditeur ni à un tiers. Elle n’a pas de compte utilisateur, pas de publicité et pas d’outil de mesure d’audience.</p>
+<p><strong>Fichier de sauvegarde.</strong> Si tu utilises « Exporter mes données », un fichier est créé sur ton appareil. Il n’est envoyé nulle part par l’application ; tu en es responsable.</p>
+<p><strong>Suppression.</strong> Tu peux modifier ou supprimer chaque ligne dans l’application. Désinstaller l’application supprime ses données de ton appareil.</p>
+<p><strong>Information, pas conseil.</strong> L’application effectue des calculs à partir de tes propres chiffres. Elle ne donne pas de conseil financier et n’est reliée à aucune banque.</p>
+<p><strong>Contact.</strong> lorenzi.leo28@gmail.com</p></details>
+
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var KEY = 'b3p-state-v1', PKEY = 'b3p-palette', TKEY = 'b3p-tab';
+  var PALETTES = {
+    ocean:   { nom: 'Bleu & Teal',     a: '#1B5FA6', b: '#12957A' },
+    violet:  { nom: 'Violet & Corail', a: '#5546B8', b: '#D95B33' },
+    foret:   { nom: 'Vert & Or',       a: '#12513D', b: '#EF9F27' },
+    rose:    { nom: 'Prune & Turquoise', a: '#A3306B', b: '#0F7C8C' },
+    orange:  { nom: 'Orange & Nuit',   a: '#C2410C', b: '#1B3A5C' },
+    ardoise: { nom: 'Ardoise & Ambre', a: '#2B3644', b: '#C9861A' }
+  };
+  var MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  var MOIS_C = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  var JOURS = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
+  var KINDS = { revenus: 'revenu', charges: 'charge fixe', chargesExcep: 'charge exceptionnelle' };
+
+  /* ---------- Utilitaires ---------- */
+  var nf = new Intl.NumberFormat('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function round2(n) { return Math.round((+n || 0) * 100) / 100; }
+  function money(n) { n = round2(n); return (n < 0 ? '−' : '') + nf.format(Math.abs(n)) + ' CHF'; }
+  function signed(n) { n = round2(n); return (n > 0 ? '+' : '') + money(n); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function parseNum(v) { var s = String(v == null ? '' : v).replace(/[\s’']/g, '').replace(',', '.'); var n = parseFloat(s); return isFinite(n) ? n : NaN; }
+  function uid() { return Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function stable(o) {
+    if (Array.isArray(o)) return '[' + o.map(stable).join(',') + ']';
+    if (o && typeof o === 'object') return '{' + Object.keys(o).sort().map(function (k) { return JSON.stringify(k) + ':' + stable(o[k]); }).join(',') + '}';
+    return JSON.stringify(o);
+  }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function dkey(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function fromKey(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function sod(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function diffDays(a, b) { return Math.round((sod(b) - sod(a)) / 864e5); }
+  function fmtLong(d) { return d.getDate() + ' ' + MOIS[d.getMonth()]; }
+  function fmtShort(d) { return d.getDate() + ' ' + MOIS_C[d.getMonth()]; }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  /* ---------- État ---------- */
+  var BLANK = { v: 1, palette: 'foret', jourRevenu: 25, soldePrecedent: 0, reporte: '', backup: null, revenus: [], charges: [], chargesExcep: [], depensesJour: {}, notes: {} };
+  function normItems(a) {
+    if (!Array.isArray(a)) return [];
+    return a.map(function (it) { return { id: String(it && it.id != null ? it.id : uid()), nom: String((it && it.nom) || ''), montant: +(it && it.montant) || 0, payee: !!(it && it.payee) }; });
+  }
+  function normalize(o) {
+    var s = clone(BLANK);
+    if (!o || typeof o !== 'object') return s;
+    o = clone(o);
+    s.palette = PALETTES[o.palette] ? o.palette : 'foret';
+    var j = parseInt(o.jourRevenu, 10); s.jourRevenu = (j >= 1 && j <= 31) ? j : 25;
+    s.soldePrecedent = +o.soldePrecedent || 0;
+    s.revenus = normItems(o.revenus); s.charges = normItems(o.charges); s.chargesExcep = normItems(o.chargesExcep);
+    s.depensesJour = (o.depensesJour && typeof o.depensesJour === 'object') ? o.depensesJour : {};
+    s.notes = (o.notes && typeof o.notes === 'object') ? o.notes : {};
+    s.reporte = typeof o.reporte === 'string' ? o.reporte : '';
+    s.backup = (o.backup && typeof o.backup === 'object') ? { solde: +o.backup.solde || 0, payees: Array.isArray(o.backup.payees) ? o.backup.payees.map(String) : [] } : null;
+    return s;
+  }
+  var S = clone(BLANK);
+  var UI = { tab: lsGet(TKEY) || 'dashboard', edit: null, del: null, np: false, focus: null, ready: false, sync: 'local' };
+  if (['dashboard', 'journal', 'budget'].indexOf(UI.tab) < 0) UI.tab = 'dashboard';
+  var C = null;
+
+  /* ---------- Calculs ---------- */
+  function compute() {
+    var today = sod(new Date()), jr = S.jourRevenu;
+    function revDate(y, m) {
+      var f = new Date(y, m, 1), yy = f.getFullYear(), mm = f.getMonth();
+      var last = new Date(yy, mm + 1, 0).getDate();
+      return new Date(yy, mm, Math.min(jr, last));
+    }
+    var start = revDate(today.getFullYear(), today.getMonth());
+    if (start > today) start = revDate(today.getFullYear(), today.getMonth() - 1);
+    var next = revDate(start.getFullYear(), start.getMonth() + 1);
+    var prevStart = revDate(start.getFullYear(), start.getMonth() - 1);
+    var n = diffDays(start, next);
+    function sum(a) { return a.reduce(function (s, x) { return s + (+x.montant || 0); }, 0); }
+    var rev = sum(S.revenus), ch = sum(S.charges), ex = sum(S.chargesExcep);
+    var avail = rev + (+S.soldePrecedent || 0) - ch - ex;
+    var budget = n > 0 ? avail / n : 0;
+    var prevDep = 0, np = diffDays(prevStart, start);
+    for (var q = 0; q < np; q++) prevDep += +S.depensesJour[dkey(addDays(prevStart, q))] || 0;
+    var rows = [], cum = 0, norme = 0, totalDep = 0, elapsed = 0;
+    for (var i = 0; i < n; i++) {
+      var d = addDays(start, i), k = dkey(d), dep = +S.depensesJour[k] || 0;
+      var r = { date: d, key: k, dep: dep, today: d.getTime() === today.getTime(), future: d > today };
+      totalDep += dep;
+      if (!r.future) { elapsed++; cum += dep; r.ecart = budget - dep; r.solde = avail - cum; norme += r.ecart; }
+      rows.push(r);
+    }
+    var paid = 0;
+    S.charges.concat(S.chargesExcep).forEach(function (x) { if (x.payee) paid += +x.montant || 0; });
+    return {
+      today: today, start: start, next: next, end: addDays(next, -1), n: n,
+      rev: rev, ch: ch, ex: ex, avail: avail, budget: budget, rows: rows,
+      norme: norme, totalDep: totalDep, solde: avail - totalDep,
+      joursApres: Math.max(0, n - elapsed), unpaid: (ch + ex) - paid,
+      periodKey: dkey(start), prevStart: prevStart, soldePrec: avail - prevDep
+    };
+  }
+
+  /* ---------- Icônes ---------- */
+  function icon(n) {
+    var p = {
+      edit: '<path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="m13.5 6.5 4 4"/>',
+      del: '<path d="M5 7h14M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/>',
+      check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>'
+    };
+    return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p[n] + '</svg>';
+  }
+  var LOGO = '<svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect x="3" y="14" width="8" height="19" rx="2" fill="var(--brand)" opacity=".55"/><rect x="14" y="8" width="8" height="25" rx="2" fill="var(--brand)" opacity=".8"/><rect x="25" y="2" width="8" height="31" rx="2" fill="var(--accent)"/></svg>';
+
+  /* ---------- Vues ---------- */
+  var SYNC_TXT = { local: 'Enregistré sur cet appareil', saving: 'Enregistrement…', saved: 'Enregistré', error: 'Échec de l’enregistrement' };
+  function renderTop(c) {
+    var dn = diffDays(c.today, c.next);
+    var sw = Object.keys(PALETTES).map(function (k) {
+      var p = PALETTES[k];
+      return '<button class="sw" role="radio" aria-checked="' + (S.palette === k) + '" aria-label="Thème ' + esc(p.nom) + '" title="' + esc(p.nom) + '" data-act="pal" data-pal="' + k + '" style="background:linear-gradient(135deg,' + p.a + ' 50%,' + p.b + ' 50%)"></button>';
+    }).join('');
+    return '<div class="logo">' + LOGO + '<div><h1>Jourly</h1><div class="sub">Prochain revenu le ' + fmtLong(c.next) + ' · dans ' + dn + ' jour' + (dn > 1 ? 's' : '') + '</div></div></div>' +
+      '<div class="right"><div class="swatches" role="radiogroup" aria-label="Thème de couleurs">' + sw + '</div>' +
+      '<div class="sync ' + UI.sync + '" id="sync"><i></i><span>' + SYNC_TXT[UI.sync] + '</span></div></div>';
+  }
+
+  function quickForm(c) {
+    var t = dkey(c.today);
+    return '<form class="addrow" data-form="quick">' +
+      '<label class="sr" for="quick-date">Date de la dépense</label><input class="in date" id="quick-date" name="date" type="date" value="' + t + '" min="' + dkey(c.start) + '" max="' + t + '" required>' +
+      '<label class="sr" for="quick-montant">Montant en CHF</label><input class="in num amt" id="quick-montant" name="montant" inputmode="decimal" placeholder="Montant CHF" required>' +
+      '<button class="btn" type="submit">Ajouter la dépense</button></form>';
+  }
+
+  function viewDash(c) {
+    var pct = c.avail > 0 ? Math.min(100, Math.max(0, c.totalDep / c.avail * 100)) : 0;
+    var perDay = c.joursApres > 0 ? money(c.solde / c.joursApres) : '—';
+    var empty = !S.revenus.length && !S.charges.length && !S.chargesExcep.length;
+    var tod = c.rows.filter(function (r) { return r.today; })[0] || { dep: 0 };
+    var ecartJ = c.budget - tod.dep;
+    var note = S.notes[c.periodKey] || '';
+    return '<div class="stack">' +
+      (empty ? '<div class="card empty-big"><strong>Commence par ton budget.</strong><span>Ajoute tes revenus et tes charges dans l’onglet Budget mensuel : le budget par jour se calcule ensuite tout seul.</span></div>' : '') +
+      '<section class="hero" aria-label="Solde de la période"><div class="eyebrow">Solde de la période</div><div class="big">' + money(c.solde) + '</div>' +
+      '<div class="hero-grid">' +
+      '<div><div class="l">Budget du jour</div><div class="v">' + money(c.budget) + '</div></div>' +
+      '<div><div class="l">Norme (écart cumulé)</div><div class="v">' + signed(c.norme) + '</div></div>' +
+      '<div><div class="l">Par jour jusqu’au ' + fmtShort(c.end) + '</div><div class="v">' + perDay + '</div></div></div>' +
+      '<div class="bar" role="img" aria-label="' + Math.round(pct) + ' % du disponible dépensé"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="bar-l"><span>Dépensé ' + money(c.totalDep) + '</span><span>Disponible ' + money(c.avail) + '</span></div></section>' +
+
+      '<section class="card"><div class="sec-h"><h2>Aujourd’hui</h2><span class="sub">' + JOURS[c.today.getDay()] + ' ' + fmtShort(c.today) + '</span></div>' +
+      '<div class="stats3"><div class="stat"><div class="l">Dépensé</div><div class="v">' + money(tod.dep) + '</div></div>' +
+      '<div class="stat"><div class="l">Budget du jour</div><div class="v">' + money(c.budget) + '</div></div>' +
+      '<div class="stat"><div class="l">Écart du jour</div><div class="v ' + (ecartJ >= 0 ? 'ok' : 'ko') + '">' + signed(ecartJ) + '</div></div></div>' +
+      quickForm(c) + '</section>' +
+
+      '<div class="tiles">' +
+      '<div class="tile"><div class="l">Revenus + solde reporté</div><div class="v">' + money(c.rev + (+S.soldePrecedent || 0)) + '</div></div>' +
+      '<div class="tile"><div class="l">Charges du mois</div><div class="v">' + money(c.ch + c.ex) + '</div></div>' +
+      '<div class="tile"><div class="l">Reste à payer</div><div class="v">' + money(c.unpaid) + '</div></div></div>' +
+
+      '<section class="card"><div class="sec-h"><h2>Note de la période</h2><span class="sub">' + fmtShort(c.start) + ' → ' + fmtShort(c.end) + '</span></div>' +
+      '<label class="sr" for="note">Note</label><textarea class="in" id="note" data-bind="note" data-pk="' + c.periodKey + '" placeholder="Remarques, événements exceptionnels, objectifs…">' + esc(note) + '</textarea></section>' +
+      '</div>';
+  }
+
+  function cellEcart(r) { return r.future ? { t: '', cls: '' } : { t: signed(r.ecart), cls: r.ecart >= 0 ? 'ok' : 'ko' }; }
+  function cellSolde(r) { return r.future ? { t: '', cls: '' } : { t: money(r.solde), cls: r.solde >= 0 ? '' : 'ko' }; }
+  function rowClass(r) { return [r.today ? 'today' : '', r.future ? 'future' : '', (!r.future && r.dep > 0) ? (r.ecart >= 0 ? 'good' : 'bad') : ''].join(' ').trim(); }
+  function rowHtml(r, c) {
+    var ec = cellEcart(r), so = cellSolde(r), lab = JOURS[r.date.getDay()] + ' ' + fmtShort(r.date);
+    return '<tr data-key="' + r.key + '" class="' + rowClass(r) + '"><td>' + lab + (r.today ? '<span class="tag">Aujourd’hui</span>' : '') + '</td>' +
+      '<td>' + (r.future ? '—' : '<input class="cell-in" id="dep-' + r.key + '" data-bind="day" data-key="' + r.key + '" inputmode="decimal" placeholder="—" value="' + (r.dep > 0 ? r.dep : '') + '" aria-label="Dépensé le ' + esc(lab) + '">') + '</td>' +
+      '<td class="hide-sm">' + money(c.budget) + '</td>' +
+      '<td data-c="ecart" class="' + ec.cls + '">' + ec.t + '</td><td data-c="solde" class="' + so.cls + '">' + so.t + '</td></tr>';
+  }
+
+  function viewJournal(c) {
+    return '<div class="stack">' +
+      '<section class="card"><div class="sec-h"><h2>Période en cours</h2><span class="sub">' + fmtShort(c.start) + ' → ' + fmtShort(c.end) + ' · ' + c.n + ' jours</span></div>' +
+      '<p class="hint">Le budget par jour est le montant disponible divisé par le nombre de jours avant le prochain revenu.</p>' +
+      '<div class="inline"><label for="jour-revenu" class="unit">Revenus reçus le</label><input class="in num" id="jour-revenu" data-bind="jour" type="number" min="1" max="31" value="' + S.jourRevenu + '" style="max-width:76px"><span class="unit">du mois</span></div></section>' +
+      '<div class="tiles">' +
+      '<div class="tile"><div class="l">Budget par jour</div><div class="v" id="s-budget">' + money(c.budget) + '</div></div>' +
+      '<div class="tile"><div class="l">Norme (écart cumulé)</div><div class="v ' + (c.norme >= 0 ? 'ok' : 'ko') + '" id="s-norme">' + signed(c.norme) + '</div></div>' +
+      '<div class="tile"><div class="l">Solde actuel</div><div class="v" id="s-solde">' + money(c.solde) + '</div></div></div>' +
+      '<section class="card"><h2>Ajouter une dépense</h2>' + quickForm(c) + '</section>' +
+      '<section class="card"><div class="sec-h"><h2>Jour par jour</h2></div>' +
+      '<p class="hint">Modifie le montant dépensé directement dans le tableau.</p>' +
+      '<div class="tablewrap"><table><thead><tr><th>Jour</th><th>Dépensé</th><th class="hide-sm">Budget</th><th>Écart</th><th>Solde</th></tr></thead><tbody>' +
+      c.rows.map(function (r) { return rowHtml(r, c); }).join('') +
+      '</tbody><tfoot><tr><td>Norme</td><td></td><td class="hide-sm"></td><td id="f-norme" class="' + (c.norme >= 0 ? 'ok' : 'ko') + '">' + signed(c.norme) + '</td><td></td></tr></tfoot></table></div>' +
+      '<p class="hint" style="margin:10px 0 0">La norme est la somme des écarts (budget du jour moins dépensé) de tous les jours écoulés.</p></section></div>';
+  }
+
+  function lineRow(kind, it, payable) {
+    var isEdit = UI.edit && UI.edit.kind === kind && UI.edit.id === it.id;
+    var isDel = UI.del && UI.del.kind === kind && UI.del.id === it.id;
+    if (isEdit) {
+      return '<form class="row edit" data-form="edit" data-kind="' + kind + '" data-id="' + esc(it.id) + '">' +
+        '<label class="sr" for="edit-nom">Nom</label><input class="in name" id="edit-nom" name="nom" value="' + esc(it.nom) + '" required>' +
+        '<label class="sr" for="edit-montant">Montant en CHF</label><input class="in num amt" id="edit-montant" name="montant" inputmode="decimal" value="' + esc(String(it.montant)) + '" required>' +
+        '<button class="btn" type="submit">Enregistrer</button><button class="btn ghost" type="button" data-act="edit-cancel">Annuler</button></form>';
+    }
+    if (isDel) {
+      return '<div class="drow"><span class="grow">Supprimer « ' + esc(it.nom) + ' » ?</span><button class="btn bad" data-act="del-ok">Supprimer</button><button class="btn ghost" data-act="del-cancel">Annuler</button></div>';
+    }
+    var ref = ' data-kind="' + kind + '" data-id="' + esc(it.id) + '"';
+    return '<div class="row' + (payable && it.payee ? ' paid' : '') + '">' +
+      (payable ? '<button class="chk" role="checkbox" aria-checked="' + !!it.payee + '" aria-label="Marquer « ' + esc(it.nom) + ' » comme payée" data-act="pay"' + ref + '>' + (it.payee ? icon('check') : '') + '</button>' : '') +
+      '<span class="grow nm">' + esc(it.nom) + '</span><span class="amt-v">' + money(it.montant) + '</span>' +
+      '<button class="ibtn" aria-label="Modifier « ' + esc(it.nom) + ' »" data-act="edit"' + ref + '>' + icon('edit') + '</button>' +
+      '<button class="ibtn" aria-label="Supprimer « ' + esc(it.nom) + ' »" data-act="del"' + ref + '>' + icon('del') + '</button></div>';
+  }
+
+  function section(kind, title, items, payable, emptyMsg) {
+    var total = items.reduce(function (s, x) { return s + (+x.montant || 0); }, 0);
+    var paidN = items.filter(function (x) { return x.payee; }).length;
+    var unpaid = items.reduce(function (s, x) { return s + (x.payee ? 0 : (+x.montant || 0)); }, 0);
+    return '<section class="card"><div class="sec-h"><h2>' + title + '</h2><span class="sec-t num">' + money(total) + '</span></div>' +
+      (payable ? '<p class="hint">' + paidN + ' sur ' + items.length + ' payées · reste à payer ' + money(unpaid) + '</p>' : '') +
+      '<div class="list">' + (items.length ? items.map(function (it) { return lineRow(kind, it, payable); }).join('') : '<p class="empty">' + emptyMsg + '</p>') + '</div>' +
+      '<form class="addrow" data-form="add" data-kind="' + kind + '">' +
+      '<label class="sr" for="add-' + kind + '-nom">Nom</label><input class="in name" id="add-' + kind + '-nom" name="nom" placeholder="Nom" required>' +
+      '<label class="sr" for="add-' + kind + '-montant">Montant en CHF</label><input class="in num amt" id="add-' + kind + '-montant" name="montant" inputmode="decimal" placeholder="Montant" required>' +
+      '<button class="btn" type="submit">Ajouter</button></form></section>';
+  }
+
+  function newPeriodCard(c) {
+    var done = S.reporte === c.periodKey;
+    var nCh = S.charges.concat(S.chargesExcep).filter(function (x) { return x.payee; }).length;
+    var body;
+    if (done) {
+      body = '<p class="hint">Déjà démarrée pour la période du ' + fmtShort(c.start) + '. Annuler remet le solde reporté et les charges cochées comme avant le report.</p>' +
+        '<button class="btn ghost" data-act="np-undo">Annuler et rétablir le bouton</button>';
+    } else if (UI.np) {
+      body = '<p class="hint">Le solde reporté deviendra ' + money(c.soldePrec) + ' (reste de la période du ' + fmtShort(c.prevStart) + ' au ' + fmtShort(addDays(c.start, -1)) + '). ' +
+        nCh + ' charge' + (nCh > 1 ? 's payées seront décochées' : ' payée sera décochée') + '.</p>' +
+        '<div class="addrow" style="margin-top:0"><button class="btn" data-act="np-ok">Confirmer</button><button class="btn ghost" data-act="np-cancel">Annuler</button></div>';
+    } else {
+      body = '<p class="hint">À faire au début de la période : reporte le reste de la période précédente (' + money(c.soldePrec) + ') et décoche les charges payées.</p>' +
+        '<button class="btn" data-act="np-ask">Démarrer la nouvelle période</button>';
+    }
+    return '<section class="card"><div class="sec-h"><h2>Nouvelle période</h2></div>' + body + '</section>';
+  }
+
+  function viewBudget(c) {
+    return '<div class="stack">' + newPeriodCard(c) +
+      '<section class="card"><div class="sec-h"><h2>Solde reporté</h2></div><p class="hint">Ce qu’il restait à la fin de la période précédente.</p>' +
+      '<div class="inline"><label class="sr" for="solde-prec">Solde reporté en CHF</label><input class="in num" id="solde-prec" data-bind="solde" inputmode="decimal" value="' + S.soldePrecedent + '"><span class="unit">CHF</span></div></section>' +
+      section('revenus', 'Revenus', S.revenus, false, 'Aucun revenu. Ajoute ton salaire pour calculer le budget par jour.') +
+      section('charges', 'Charges fixes', S.charges, true, 'Aucune charge fixe. Ajoute loyer, assurances, abonnements.') +
+      section('chargesExcep', 'Charges exceptionnelles', S.chargesExcep, true, 'Aucune charge exceptionnelle sur cette période.') +
+      '<section class="card recap"><h2>Récapitulatif</h2>' +
+      '<div><span>Revenus</span><span class="num">' + money(c.rev) + '</span></div>' +
+      '<div><span>+ Solde reporté</span><span class="num">' + money(S.soldePrecedent) + '</span></div>' +
+      '<div><span>− Charges fixes</span><span class="num">' + money(c.ch) + '</span></div>' +
+      '<div><span>− Charges exceptionnelles</span><span class="num">' + money(c.ex) + '</span></div>' +
+      '<div class="tot"><span>Montant restant</span><span class="num">' + money(c.avail) + '</span></div>' +
+      '<div><span>Budget par jour (' + c.n + ' jours)</span><span class="num">' + money(c.budget) + '</span></div></section></div>';
+  }
+
+  /* ---------- Rendu ---------- */
+  function applyPalette() { document.documentElement.setAttribute('data-palette', S.palette); }
+  function render() {
+    var c = compute(); C = c;
+    document.getElementById('top').innerHTML = renderTop(c);
+    ['dashboard', 'journal', 'budget'].forEach(function (t) {
+      var b = document.getElementById('tab-' + t); b.setAttribute('aria-selected', String(UI.tab === t));
+    });
+    var v = !UI.ready ? '<div class="card empty">Chargement de tes données…</div>' :
+      UI.tab === 'journal' ? viewJournal(c) : UI.tab === 'budget' ? viewBudget(c) : viewDash(c);
+    document.getElementById('view').innerHTML = v;
+    if (UI.focus) { var el = document.getElementById(UI.focus); if (el) { el.focus(); if (el.select && el.tagName === 'INPUT') el.select(); } UI.focus = null; }
+  }
+  function patchJournal() {
+    var c = compute(); C = c;
+    c.rows.forEach(function (r) {
+      var tr = document.querySelector('tr[data-key="' + r.key + '"]'); if (!tr) return;
+      tr.className = rowClass(r);
+      var ec = cellEcart(r), so = cellSolde(r);
+      var e = tr.querySelector('[data-c="ecart"]'), s = tr.querySelector('[data-c="solde"]');
+      if (e) { e.textContent = ec.t; e.className = ec.cls; }
+      if (s) { s.textContent = so.t; s.className = so.cls; }
+    });
+    var cls = c.norme >= 0 ? 'ok' : 'ko';
+    function set(id, t, k) { var el = document.getElementById(id); if (el) { el.textContent = t; if (k !== undefined) el.className = k; } }
+    set('s-budget', money(c.budget)); set('s-solde', money(c.solde));
+    set('s-norme', signed(c.norme), 'v ' + cls); set('f-norme', signed(c.norme), cls);
+  }
+  var toastT = null;
+  function flash(msg) {
+    var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('on'); }, 2600);
+  }
+  function setSync(s) {
+    UI.sync = s;
+    var el = document.getElementById('sync');
+    if (el) { el.className = 'sync ' + s; el.lastChild.textContent = SYNC_TXT[s]; }
+  }
+
+  /* ---------- Sauvegarde ---------- */
+  var dbDoc = null, writing = false, dirty = false, wt = null;
+  function persist() {
+    lsSet(KEY, JSON.stringify(S));
+    if (!dbDoc) { setSync('local'); return; }
+    setSync('saving'); clearTimeout(wt); wt = setTimeout(flush, 350);
+  }
+  function flush() {
+    wt = null;
+    if (writing) { dirty = true; return; }
+    writing = true; dirty = false;
+    var body = clone(S); body.updatedAt = Date.now();
+    dbDoc.set(body).then(function () { if (!dirty) setSync('saved'); }, function () { setSync('error'); })
+      .then(function () { writing = false; if (dirty) flush(); });
+  }
+  function connect() {
+    if (!(window.claude && window.claude.use)) { UI.ready = true; setSync('local'); render(); return; }
+    window.claude.use('db').then(function (db) {
+      if (!db) { UI.ready = true; setSync('local'); render(); return; }
+      var ref = db.doc('budget/state'); dbDoc = ref; var first = true;
+      ref.onSnapshot(function (snap) {
+        if (snap.metadata.hasPendingWrites) return;
+        var changed = false;
+        if (snap.exists && !(writing || dirty || wt) && !UI.edit) {
+          var remote = normalize(snap.data());
+          if (stable(remote) !== stable(S)) { S = remote; lsSet(KEY, JSON.stringify(S)); lsSet(PKEY, S.palette); applyPalette(); changed = true; }
+        }
+        if (first) { first = false; UI.ready = true; changed = true; setSync('saved'); }
+        if (changed) render();
+      }, function () { dbDoc = null; UI.ready = true; setSync('local'); render(); });
+    }, function () { UI.ready = true; setSync('local'); render(); });
+  }
+
+  /* ---------- Interactions ---------- */
+  function findItem(kind, id) { return (S[kind] || []).filter(function (x) { return x.id === id; })[0]; }
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-act]'); if (!t) return;
+    var act = t.getAttribute('data-act'), kind = t.getAttribute('data-kind'), id = t.getAttribute('data-id');
+    if (act === 'tab') { UI.tab = t.getAttribute('data-tab'); UI.edit = null; UI.del = null; UI.np = false; lsSet(TKEY, UI.tab); render(); }
+    else if (act === 'pal') { S.palette = t.getAttribute('data-pal'); lsSet(PKEY, S.palette); applyPalette(); persist(); render(); }
+    else if (act === 'pay') { var it = findItem(kind, id); if (it) { it.payee = !it.payee; persist(); render(); } }
+    else if (act === 'edit') { UI.edit = { kind: kind, id: id }; UI.del = null; UI.focus = 'edit-nom'; render(); }
+    else if (act === 'edit-cancel') { UI.edit = null; render(); }
+    else if (act === 'del') { UI.del = { kind: kind, id: id }; UI.edit = null; render(); }
+    else if (act === 'del-cancel') { UI.del = null; render(); }
+    else if (act === 'np-ask') { UI.np = true; render(); }
+    else if (act === 'np-cancel') { UI.np = false; render(); }
+    else if (act === 'np-undo') {
+      if (S.backup) {
+        S.soldePrecedent = S.backup.solde;
+        S.charges.concat(S.chargesExcep).forEach(function (x) { x.payee = S.backup.payees.indexOf(x.id) >= 0; });
+      }
+      S.reporte = ''; S.backup = null; persist(); render();
+      flash('Report annulé : le bouton est de nouveau disponible');
+    }
+    else if (act === 'np-ok') {
+      var c0 = C || compute();
+      S.backup = { solde: S.soldePrecedent, payees: S.charges.concat(S.chargesExcep).filter(function (x) { return x.payee; }).map(function (x) { return x.id; }) };
+      S.soldePrecedent = round2(c0.soldePrec);
+      S.charges.concat(S.chargesExcep).forEach(function (x) { x.payee = false; });
+      S.reporte = c0.periodKey; UI.np = false; persist(); render();
+      flash('Nouvelle période démarrée : solde reporté ' + money(S.soldePrecedent));
+    }
+    else if (act === 'del-ok') {
+      if (UI.del) { S[UI.del.kind] = S[UI.del.kind].filter(function (x) { return x.id !== UI.del.id; }); UI.del = null; persist(); render(); }
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && (UI.edit || UI.del || UI.np)) { UI.edit = null; UI.del = null; UI.np = false; render(); }
+  });
+  document.addEventListener('submit', function (e) {
+    var f = e.target.closest('form[data-form]'); if (!f) return;
+    e.preventDefault();
+    var type = f.getAttribute('data-form');
+    if (type === 'quick') {
+      var date = f.elements.date.value, a = parseNum(f.elements.montant.value);
+      if (!date || isNaN(a) || a <= 0) { flash('Indique une date et un montant supérieur à 0.'); return; }
+      S.depensesJour[date] = round2((+S.depensesJour[date] || 0) + a);
+      persist(); render(); flash('Ajouté : ' + money(a) + ' le ' + fmtShort(fromKey(date)));
+      return;
+    }
+    var nom = f.elements.nom.value.trim(), m = parseNum(f.elements.montant.value);
+    if (!nom || isNaN(m) || m < 0) { flash('Indique un nom et un montant valide.'); return; }
+    if (type === 'add') {
+      var kind = f.getAttribute('data-kind');
+      S[kind].push({ id: uid(), nom: nom, montant: round2(m), payee: false });
+      UI.focus = 'add-' + kind + '-nom'; persist(); render();
+    } else if (type === 'edit') {
+      var it = findItem(f.getAttribute('data-kind'), f.getAttribute('data-id'));
+      if (it) { it.nom = nom; it.montant = round2(m); }
+      UI.edit = null; persist(); render();
+    }
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target, b = t.getAttribute && t.getAttribute('data-bind'); if (!b) return;
+    if (b === 'solde') {
+      var n = parseNum(t.value); if (isNaN(n)) { t.value = S.soldePrecedent; return; }
+      S.soldePrecedent = round2(n); persist(); render();
+    } else if (b === 'jour') {
+      var j = parseInt(t.value, 10); if (!(j >= 1 && j <= 31)) { t.value = S.jourRevenu; return; }
+      S.jourRevenu = j; persist(); render();
+    } else if (b === 'day') {
+      var k = t.getAttribute('data-key'), v = parseNum(t.value);
+      if (isNaN(v) || v <= 0) { delete S.depensesJour[k]; t.value = ''; }
+      else { S.depensesJour[k] = round2(v); t.value = S.depensesJour[k]; }
+      persist(); patchJournal();
+    } else if (b === 'note') {
+      var pk = t.getAttribute('data-pk');
+      if (t.value.trim()) S.notes[pk] = t.value; else delete S.notes[pk];
+      persist();
+    }
+  });
+
+  /* ---------- Sauvegarde fichier & tutoriel ---------- */
+  var DKEY = 'jourly-tuto-vu';
+  function dmsg(t) { var e = document.getElementById('data-msg'); if (e) e.textContent = t; }
+  function downloadFile(json, name) {
+    try {
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+      dmsg('Téléchargement lancé : ' + name + '. Si rien ne s’enregistre, utilise « Copier / coller ».');
+    } catch (e) { dmsg('Export impossible ici. Utilise « Copier / coller » ci-dessous.'); }
+  }
+  function exportData() {
+    var json = JSON.stringify(S, null, 2), name = 'jourly-sauvegarde-' + dkey(new Date()) + '.json';
+    var file = null;
+    try { file = new File([json], name, { type: 'application/json' }); } catch (e) {}
+    if (file && navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+      navigator.share({ files: [file], title: 'Sauvegarde Jourly' }).then(function () { dmsg('Fichier prêt : enregistre-le dans Fichiers ou envoie-le-toi.'); },
+        function (err) { if (err && err.name === 'AbortError') return; downloadFile(json, name); });
+      return;
+    }
+    downloadFile(json, name);
+  }
+  function openPaste() {
+    var box = document.getElementById('paste-box'), ta = document.getElementById('paste-ta');
+    box.hidden = false; ta.value = JSON.stringify(S); dmsg('Copie tout le texte ci-dessous et colle-le dans une note ou un message à toi-même. Pour restaurer, colle-le ici puis « Importer le texte ».');
+  }
+  function copyPaste() {
+    var ta = document.getElementById('paste-ta'); ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    if (!ok && navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(ta.value).then(function () { dmsg('Texte copié.'); }, function () { dmsg('Sélectionne le texte et copie-le à la main.'); }); return; }
+    dmsg(ok ? 'Texte copié.' : 'Sélectionne le texte et copie-le à la main.');
+  }
+  function importText() {
+    var t = document.getElementById('paste-ta').value.trim(); if (!t) { dmsg('Colle d’abord le texte de ta sauvegarde.'); return; }
+    parseImport(t);
+  }
+  var pendingImport = null;
+  function parseImport(text) {
+    try {
+      var o = JSON.parse(text);
+      if (!o || typeof o !== 'object' || !('revenus' in o || 'charges' in o || 'depensesJour' in o)) throw new Error('format');
+      pendingImport = normalize(o); document.getElementById('import-confirm').hidden = false; dmsg('');
+    } catch (e) { pendingImport = null; dmsg('Ce texte ou fichier n’est pas une sauvegarde Jourly valide.'); }
+  }
+  function readImport(f) {
+    var r = new FileReader();
+    r.onload = function () { parseImport(r.result); };
+    r.onerror = function () { dmsg('Lecture du fichier impossible.'); };
+    r.readAsText(f);
+  }
+  var TUTO = [
+    ['Bienvenue dans Jourly', '<p>Jourly te dit <strong>combien tu peux dépenser aujourd’hui</strong>.</p><p>Calcul : <code>revenus + solde reporté − charges fixes − charges exceptionnelles</code>, divisé par le nombre de jours avant ton prochain revenu.</p><p>Compte environ 10 minutes par mois pour la préparation et 2 minutes par jour.</p>'],
+    ['1. Prépare ton mois', '<p>Va dans l’onglet <strong>Budget mensuel</strong> :</p><p>• indique le jour du mois où tu reçois ton revenu ;<br>• ajoute tes revenus, tes charges fixes et tes charges exceptionnelles ;<br>• renseigne le solde reporté (ce qui restait de la période précédente).</p><p>Chaque ligne peut être modifiée ou supprimée. Quand une charge est payée, coche-la : elle passe en vert.</p>'],
+    ['2. Note tes dépenses', '<p>Dans <strong>Budget jour</strong>, saisis ce que tu dépenses chaque jour (tes charges fixes n’ont pas à y figurer).</p><p>Le tableau montre pour chaque jour : dépensé, maximum, écart et solde. Tu peux aussi écrire une note pour la période.</p>'],
+    ['3. Lis ton tableau de bord', '<p>Le <strong>Tableau de bord</strong> affiche ton budget du jour et ce qui te reste.</p><p>La <strong>norme</strong> est la somme des écarts (budget du jour moins dépensé) des jours écoulés : positive, tu as dépensé moins que prévu ; négative, tu as dépassé.</p>'],
+    ['4. Chaque nouvelle période', '<p>Au début de chaque période, utilise le bouton <strong>Démarrer la nouvelle période</strong> (onglet Budget mensuel) : il reporte le reste et décoche les charges payées.</p><p>Tu t’es trompé ? Le bouton d’annulation remet tout comme avant.</p>'],
+    ['5. Protège tes données', '<p>Tes données sont enregistrées <strong>uniquement sur cet appareil</strong>. Si tu effaces les données du navigateur ou désinstalles l’app, elles disparaissent.</p><p>En bas de page, <strong>Exporter mes données</strong> crée un fichier de sauvegarde ; <strong>Importer un fichier</strong> le recharge. Fais-le régulièrement.</p><p>Tu peux rouvrir ce guide avec le bouton <strong>Tutoriel</strong>.</p>']
+  ];
+  var tIdx = 0;
+  function tutoShow() {
+    var t = TUTO[tIdx];
+    document.getElementById('tuto-title').textContent = t[0];
+    document.getElementById('tuto-body').innerHTML = t[1];
+    document.getElementById('tuto-dots').innerHTML = TUTO.map(function (_, i) { return '<i class="' + (i === tIdx ? 'on' : '') + '"></i>'; }).join('');
+    document.getElementById('tuto-prev').style.visibility = tIdx === 0 ? 'hidden' : 'visible';
+    document.getElementById('tuto-next').textContent = tIdx === TUTO.length - 1 ? 'Terminer' : 'Suivant';
+  }
+  function tutoOpen() { tIdx = 0; tutoShow(); document.getElementById('tuto').classList.add('on'); document.getElementById('tuto-next').focus(); }
+  function tutoClose() { document.getElementById('tuto').classList.remove('on'); lsSet(DKEY, '1'); }
+  document.getElementById('btn-export').addEventListener('click', exportData);
+  document.getElementById('btn-import').addEventListener('click', function () { var f = document.getElementById('file-import'); f.value = ''; f.click(); });
+  document.getElementById('file-import').addEventListener('change', function (e) { var f = e.target.files && e.target.files[0]; if (f) readImport(f); });
+  document.getElementById('imp-ok').addEventListener('click', function () {
+    if (!pendingImport) return;
+    S = pendingImport; pendingImport = null; lsSet(PKEY, S.palette); applyPalette(); persist(); render();
+    document.getElementById('import-confirm').hidden = true; document.getElementById('paste-box').hidden = true; dmsg('Données importées.');
+  });
+  document.getElementById('imp-cancel').addEventListener('click', function () { pendingImport = null; document.getElementById('import-confirm').hidden = true; dmsg('Import annulé.'); });
+  document.getElementById('btn-paste').addEventListener('click', openPaste);
+  document.getElementById('paste-copy').addEventListener('click', copyPaste);
+  document.getElementById('paste-imp').addEventListener('click', importText);
+  document.getElementById('btn-help').addEventListener('click', tutoOpen);
+  document.getElementById('tuto-prev').addEventListener('click', function () { if (tIdx > 0) { tIdx--; tutoShow(); } });
+  document.getElementById('tuto-next').addEventListener('click', function () { if (tIdx < TUTO.length - 1) { tIdx++; tutoShow(); } else tutoClose(); });
+  document.getElementById('tuto-skip').addEventListener('click', tutoClose);
+  if (!lsGet(DKEY)) tutoOpen();
+
+  /* ---------- Démarrage ---------- */
+  var cached = lsGet(KEY);
+  if (cached) { try { S = normalize(JSON.parse(cached)); UI.ready = true; } catch (e) {} }
+  var pal = lsGet(PKEY); if (pal && PALETTES[pal]) S.palette = pal;
+  applyPalette(); render(); connect();
+  setTimeout(function () { if (!UI.ready) { UI.ready = true; render(); } }, 6000);
+})();
+</script>
+</body>
+</html>
