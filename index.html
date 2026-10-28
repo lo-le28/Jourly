@@ -275,9 +275,14 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
   <div class="drow">
     <button class="btn" type="button" id="btn-export">Exporter mes données</button>
     <button class="btn ghost" type="button" id="btn-import">Importer un fichier</button>
+    <button class="btn ghost" type="button" id="btn-paste">Copier / coller</button>
     <button class="btn ghost" type="button" id="btn-help">Tutoriel</button>
   </div>
   <input type="file" id="file-import" accept=".json,application/json" hidden>
+  <div id="paste-box" hidden>
+    <textarea id="paste-ta" class="in" rows="4" style="width:100%;margin-top:10px;font-size:12px" aria-label="Texte de sauvegarde"></textarea>
+    <div class="drow"><button class="btn ghost" type="button" id="paste-copy">Copier le texte</button><button class="btn ghost" type="button" id="paste-imp">Importer le texte</button></div>
+  </div>
   <div id="import-confirm" hidden>
     <p class="st"><strong>Remplacer toutes les données actuelles</strong> par celles du fichier ?</p>
     <div class="drow"><button class="btn bad" type="button" id="imp-ok">Remplacer</button><button class="btn ghost" type="button" id="imp-cancel">Annuler</button></div>
@@ -728,30 +733,49 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
   /* ---------- Sauvegarde fichier & tutoriel ---------- */
   var DKEY = 'jourly-tuto-vu';
   function dmsg(t) { var e = document.getElementById('data-msg'); if (e) e.textContent = t; }
+  function downloadFile(json, name) {
+    try {
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+      dmsg('Téléchargement lancé : ' + name + '. Si rien ne s’enregistre, utilise « Copier / coller ».');
+    } catch (e) { dmsg('Export impossible ici. Utilise « Copier / coller » ci-dessous.'); }
+  }
   function exportData() {
     var json = JSON.stringify(S, null, 2), name = 'jourly-sauvegarde-' + dkey(new Date()) + '.json';
     var file = null;
     try { file = new File([json], name, { type: 'application/json' }); } catch (e) {}
     if (file && navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
-      navigator.share({ files: [file], title: 'Sauvegarde Jourly' }).then(function () { dmsg('Fichier prêt : enregistre-le dans Fichiers ou envoie-le-toi.'); }, function (err) { if (err && err.name !== 'AbortError') dmsg('Export impossible : ' + err.message); });
+      navigator.share({ files: [file], title: 'Sauvegarde Jourly' }).then(function () { dmsg('Fichier prêt : enregistre-le dans Fichiers ou envoie-le-toi.'); },
+        function (err) { if (err && err.name === 'AbortError') return; downloadFile(json, name); });
       return;
     }
-    try {
-      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name;
-      document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-      dmsg('Sauvegarde téléchargée : ' + name);
-    } catch (e) { dmsg('Export impossible sur cet appareil.'); }
+    downloadFile(json, name);
+  }
+  function openPaste() {
+    var box = document.getElementById('paste-box'), ta = document.getElementById('paste-ta');
+    box.hidden = false; ta.value = JSON.stringify(S); dmsg('Copie tout le texte ci-dessous et colle-le dans une note ou un message à toi-même. Pour restaurer, colle-le ici puis « Importer le texte ».');
+  }
+  function copyPaste() {
+    var ta = document.getElementById('paste-ta'); ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    if (!ok && navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(ta.value).then(function () { dmsg('Texte copié.'); }, function () { dmsg('Sélectionne le texte et copie-le à la main.'); }); return; }
+    dmsg(ok ? 'Texte copié.' : 'Sélectionne le texte et copie-le à la main.');
+  }
+  function importText() {
+    var t = document.getElementById('paste-ta').value.trim(); if (!t) { dmsg('Colle d’abord le texte de ta sauvegarde.'); return; }
+    parseImport(t);
   }
   var pendingImport = null;
+  function parseImport(text) {
+    try {
+      var o = JSON.parse(text);
+      if (!o || typeof o !== 'object' || !('revenus' in o || 'charges' in o || 'depensesJour' in o)) throw new Error('format');
+      pendingImport = normalize(o); document.getElementById('import-confirm').hidden = false; dmsg('');
+    } catch (e) { pendingImport = null; dmsg('Ce texte ou fichier n’est pas une sauvegarde Jourly valide.'); }
+  }
   function readImport(f) {
     var r = new FileReader();
-    r.onload = function () {
-      try {
-        var o = JSON.parse(r.result);
-        if (!o || typeof o !== 'object' || !('revenus' in o || 'charges' in o || 'depensesJour' in o)) throw new Error('format');
-        pendingImport = normalize(o); document.getElementById('import-confirm').hidden = false; dmsg('');
-      } catch (e) { pendingImport = null; dmsg('Ce fichier n’est pas une sauvegarde Jourly valide.'); }
-    };
+    r.onload = function () { parseImport(r.result); };
     r.onerror = function () { dmsg('Lecture du fichier impossible.'); };
     r.readAsText(f);
   }
@@ -780,9 +804,12 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
   document.getElementById('imp-ok').addEventListener('click', function () {
     if (!pendingImport) return;
     S = pendingImport; pendingImport = null; lsSet(PKEY, S.palette); applyPalette(); persist(); render();
-    document.getElementById('import-confirm').hidden = true; dmsg('Données importées.');
+    document.getElementById('import-confirm').hidden = true; document.getElementById('paste-box').hidden = true; dmsg('Données importées.');
   });
   document.getElementById('imp-cancel').addEventListener('click', function () { pendingImport = null; document.getElementById('import-confirm').hidden = true; dmsg('Import annulé.'); });
+  document.getElementById('btn-paste').addEventListener('click', openPaste);
+  document.getElementById('paste-copy').addEventListener('click', copyPaste);
+  document.getElementById('paste-imp').addEventListener('click', importText);
   document.getElementById('btn-help').addEventListener('click', tutoOpen);
   document.getElementById('tuto-prev').addEventListener('click', function () { if (tIdx > 0) { tIdx--; tutoShow(); } });
   document.getElementById('tuto-next').addEventListener('click', function () { if (tIdx < TUTO.length - 1) { tIdx++; tutoShow(); } else tutoClose(); });
