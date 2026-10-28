@@ -12,7 +12,7 @@
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html,body{margin:0}</style>
 <style>
 /* Layout : une colonne de pilotage (760px max). Une seule surface pleine couleur, le solde ;
-   le reste reste calme. Trois palettes interchangeables via data-palette, chacune en clair et en sombre. */
+   le reste reste calme. Six palettes interchangeables via data-palette, chacune en clair et en sombre. */
 :root{
   --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
@@ -36,6 +36,24 @@
   --brand:#2B3644; --on-brand:#FFFFFF; --brand-soft:#E6EAEF;
   --accent:#8F5A06; --accent-soft:#F7ECD6;
 }
+:root[data-palette="foret"]{
+  --bg:#F3F6F2; --surface:#FFFFFF; --surface2:#E8EFE9; --line:#D6E0D8;
+  --fg:#14231C; --muted:#5A6B61;
+  --brand:#12513D; --on-brand:#FFFFFF; --brand-soft:#DFEEE6;
+  --accent:#B87408; --accent-soft:#FAEFD9;
+}
+:root[data-palette="rose"]{
+  --bg:#FAF4F7; --surface:#FFFFFF; --surface2:#F3E8EE; --line:#E7D6DF;
+  --fg:#2A1420; --muted:#7A5E6D;
+  --brand:#A3306B; --on-brand:#FFFFFF; --brand-soft:#F8E3EE;
+  --accent:#0F7C8C; --accent-soft:#DDF1F4;
+}
+:root[data-palette="orange"]{
+  --bg:#F8F5F2; --surface:#FFFFFF; --surface2:#F0EAE4; --line:#E3DBD2;
+  --fg:#1F1A16; --muted:#6B6158;
+  --brand:#C2410C; --on-brand:#FFFFFF; --brand-soft:#FCE8DC;
+  --accent:#1B3A5C; --accent-soft:#E2EAF3;
+}
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
@@ -58,6 +76,24 @@
     --brand:#B8C4D2; --on-brand:#10151B; --brand-soft:#232B35;
     --accent:#E5A845; --accent-soft:#35280F;
   }
+  :root:not([data-theme="light"])[data-palette="foret"]{
+    --bg:#0E1713; --surface:#15221C; --surface2:#1C2D25; --line:#2A4036;
+    --fg:#E8F1EC; --muted:#94AB9F;
+    --brand:#4FB88A; --on-brand:#07170F; --brand-soft:#173A2B;
+    --accent:#EF9F27; --accent-soft:#3A2A0C;
+  }
+  :root:not([data-theme="light"])[data-palette="rose"]{
+    --bg:#1A1016; --surface:#241821; --surface2:#2E202A; --line:#43303D;
+    --fg:#F6EAF0; --muted:#B598A8;
+    --brand:#E57BAE; --on-brand:#240E19; --brand-soft:#4A2238;
+    --accent:#4DC3D4; --accent-soft:#123A40;
+  }
+  :root:not([data-theme="light"])[data-palette="orange"]{
+    --bg:#16120F; --surface:#1F1915; --surface2:#2A221C; --line:#3E342B;
+    --fg:#F3EDE7; --muted:#AD9F92;
+    --brand:#F08A4B; --on-brand:#1F0E03; --brand-soft:#4A2812;
+    --accent:#7FB0E3; --accent-soft:#14283E;
+  }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
@@ -79,6 +115,24 @@
   --fg:#ECEFF2; --muted:#9AA3AE;
   --brand:#B8C4D2; --on-brand:#10151B; --brand-soft:#232B35;
   --accent:#E5A845; --accent-soft:#35280F;
+}
+:root[data-theme="dark"][data-palette="foret"]{
+  --bg:#0E1713; --surface:#15221C; --surface2:#1C2D25; --line:#2A4036;
+  --fg:#E8F1EC; --muted:#94AB9F;
+  --brand:#4FB88A; --on-brand:#07170F; --brand-soft:#173A2B;
+  --accent:#EF9F27; --accent-soft:#3A2A0C;
+}
+:root[data-theme="dark"][data-palette="rose"]{
+  --bg:#1A1016; --surface:#241821; --surface2:#2E202A; --line:#43303D;
+  --fg:#F6EAF0; --muted:#B598A8;
+  --brand:#E57BAE; --on-brand:#240E19; --brand-soft:#4A2238;
+  --accent:#4DC3D4; --accent-soft:#123A40;
+}
+:root[data-theme="dark"][data-palette="orange"]{
+  --bg:#16120F; --surface:#1F1915; --surface2:#2A221C; --line:#3E342B;
+  --fg:#F3EDE7; --muted:#AD9F92;
+  --brand:#F08A4B; --on-brand:#1F0E03; --brand-soft:#4A2812;
+  --accent:#7FB0E3; --accent-soft:#14283E;
 }
 
 *{box-sizing:border-box}
@@ -194,6 +248,17 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 <style>.foot{margin-top:28px;font-size:12.5px;color:var(--muted)}.foot summary{cursor:pointer;padding:10px 0;font-weight:600}.foot h2{font-size:14px;margin:8px 0 4px;color:var(--fg)}.foot p{margin:6px 0;line-height:1.5}</style>
+<style>
+.dataCard{margin-top:20px}.dataCard h2{font-size:15px;margin:0 0 4px}.dataCard .drow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.dataCard .st{font-size:12.5px;color:var(--muted);margin:8px 0 0;line-height:1.5}
+.tuto{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(10,20,30,.55);padding:16px}
+.tuto.on{display:flex}
+.tuto .box{background:var(--surface);color:var(--fg);border-radius:16px;max-width:440px;width:100%;padding:22px 20px 16px;box-shadow:0 10px 40px rgba(0,0,0,.3);max-height:calc(100% - 32px);overflow:auto}
+.tuto h2{margin:0 0 8px;font-size:19px}.tuto p{margin:8px 0;line-height:1.55;font-size:14.5px}
+.tuto .dots{display:flex;gap:6px;margin:14px 0 4px}.tuto .dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.tuto .dots i.on{background:var(--brand)}
+.tuto .nav{display:flex;justify-content:space-between;gap:8px;margin-top:12px}
+.tuto code{background:var(--surface2);padding:1px 6px;border-radius:6px;font-size:13px}
+</style>
 </head>
 <body>
 <div class="shell">
@@ -204,12 +269,37 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
     <button class="tab" role="tab" data-act="tab" data-tab="budget" id="tab-budget">Budget mensuel</button>
   </nav>
   <main id="view" role="tabpanel"></main>
-  <details class="foot"><summary>Politique de confidentialité</summary><h2>Politique de confidentialité</h2>
+  <section class="card dataCard" id="data-card">
+  <h2>Mes données et aide</h2>
+  <p class="st" style="margin-top:0">Tes données restent sur cet appareil. Exporte régulièrement un fichier de sauvegarde pour ne rien perdre ou pour changer d’appareil.</p>
+  <div class="drow">
+    <button class="btn" type="button" id="btn-export">Exporter mes données</button>
+    <button class="btn ghost" type="button" id="btn-import">Importer un fichier</button>
+    <button class="btn ghost" type="button" id="btn-help">Tutoriel</button>
+  </div>
+  <input type="file" id="file-import" accept=".json,application/json" hidden>
+  <div id="import-confirm" hidden>
+    <p class="st"><strong>Remplacer toutes les données actuelles</strong> par celles du fichier ?</p>
+    <div class="drow"><button class="btn bad" type="button" id="imp-ok">Remplacer</button><button class="btn ghost" type="button" id="imp-cancel">Annuler</button></div>
+  </div>
+  <p class="st" id="data-msg" role="status"></p>
+</section>
+<div class="tuto" id="tuto" role="dialog" aria-modal="true" aria-labelledby="tuto-title">
+  <div class="box">
+    <h2 id="tuto-title"></h2>
+    <div id="tuto-body"></div>
+    <div class="dots" id="tuto-dots"></div>
+    <div class="nav"><button class="btn ghost" type="button" id="tuto-prev">Précédent</button><button class="btn" type="button" id="tuto-next">Suivant</button></div>
+    <div style="text-align:right;margin-top:8px"><button class="btn ghost" type="button" id="tuto-skip" style="min-height:34px;padding:6px 12px">Fermer</button></div>
+  </div>
+</div>
+<details class="foot"><summary>Politique de confidentialité</summary><h2>Politique de confidentialité</h2>
 <p><strong>Dernière mise à jour : 28 octobre 2026</strong></p>
 <p>« Jourly » (compagnon du e-book « Combien je peux dépenser aujourd’hui ? ») est un outil de suivi de budget personnel.</p>
 <p><strong>Données saisies.</strong> Tes revenus, charges, dépenses, notes et réglages.</p>
 <p><strong>Où elles sont stockées.</strong> Uniquement sur ton appareil, dans le stockage local de l’application.</p>
 <p><strong>Aucune collecte.</strong> L’application n’envoie aucune donnée à l’éditeur ni à un tiers. Elle n’a pas de compte utilisateur, pas de publicité et pas d’outil de mesure d’audience.</p>
+<p><strong>Fichier de sauvegarde.</strong> Si tu utilises « Exporter mes données », un fichier est créé sur ton appareil. Il n’est envoyé nulle part par l’application ; tu en es responsable.</p>
 <p><strong>Suppression.</strong> Tu peux modifier ou supprimer chaque ligne dans l’application. Désinstaller l’application supprime ses données de ton appareil.</p>
 <p><strong>Information, pas conseil.</strong> L’application effectue des calculs à partir de tes propres chiffres. Elle ne donne pas de conseil financier et n’est reliée à aucune banque.</p>
 <p><strong>Contact.</strong> lorenzi.leo28@gmail.com</p></details>
@@ -224,6 +314,9 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
   var PALETTES = {
     ocean:   { nom: 'Bleu & Teal',     a: '#1B5FA6', b: '#12957A' },
     violet:  { nom: 'Violet & Corail', a: '#5546B8', b: '#D95B33' },
+    foret:   { nom: 'Vert & Or',       a: '#12513D', b: '#EF9F27' },
+    rose:    { nom: 'Prune & Turquoise', a: '#A3306B', b: '#0F7C8C' },
+    orange:  { nom: 'Orange & Nuit',   a: '#C2410C', b: '#1B3A5C' },
     ardoise: { nom: 'Ardoise & Ambre', a: '#2B3644', b: '#C9861A' }
   };
   var MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
@@ -423,7 +516,7 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
         '<button class="btn" type="submit">Enregistrer</button><button class="btn ghost" type="button" data-act="edit-cancel">Annuler</button></form>';
     }
     if (isDel) {
-      return '<div class="row"><span class="grow">Supprimer « ' + esc(it.nom) + ' » ?</span><button class="btn bad" data-act="del-ok">Supprimer</button><button class="btn ghost" data-act="del-cancel">Annuler</button></div>';
+      return '<div class="drow"><span class="grow">Supprimer « ' + esc(it.nom) + ' » ?</span><button class="btn bad" data-act="del-ok">Supprimer</button><button class="btn ghost" data-act="del-cancel">Annuler</button></div>';
     }
     var ref = ' data-kind="' + kind + '" data-id="' + esc(it.id) + '"';
     return '<div class="row' + (payable && it.payee ? ' paid' : '') + '">' +
@@ -631,6 +724,70 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
       persist();
     }
   });
+
+  /* ---------- Sauvegarde fichier & tutoriel ---------- */
+  var DKEY = 'jourly-tuto-vu';
+  function dmsg(t) { var e = document.getElementById('data-msg'); if (e) e.textContent = t; }
+  function exportData() {
+    var json = JSON.stringify(S, null, 2), name = 'jourly-sauvegarde-' + dkey(new Date()) + '.json';
+    var file = null;
+    try { file = new File([json], name, { type: 'application/json' }); } catch (e) {}
+    if (file && navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+      navigator.share({ files: [file], title: 'Sauvegarde Jourly' }).then(function () { dmsg('Fichier prêt : enregistre-le dans Fichiers ou envoie-le-toi.'); }, function (err) { if (err && err.name !== 'AbortError') dmsg('Export impossible : ' + err.message); });
+      return;
+    }
+    try {
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+      dmsg('Sauvegarde téléchargée : ' + name);
+    } catch (e) { dmsg('Export impossible sur cet appareil.'); }
+  }
+  var pendingImport = null;
+  function readImport(f) {
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var o = JSON.parse(r.result);
+        if (!o || typeof o !== 'object' || !('revenus' in o || 'charges' in o || 'depensesJour' in o)) throw new Error('format');
+        pendingImport = normalize(o); document.getElementById('import-confirm').hidden = false; dmsg('');
+      } catch (e) { pendingImport = null; dmsg('Ce fichier n’est pas une sauvegarde Jourly valide.'); }
+    };
+    r.onerror = function () { dmsg('Lecture du fichier impossible.'); };
+    r.readAsText(f);
+  }
+  var TUTO = [
+    ['Bienvenue dans Jourly', '<p>Jourly te dit <strong>combien tu peux dépenser aujourd’hui</strong>.</p><p>Calcul : <code>revenus + solde reporté − charges fixes − charges exceptionnelles</code>, divisé par le nombre de jours avant ton prochain revenu.</p><p>Compte environ 10 minutes par mois pour la préparation et 2 minutes par jour.</p>'],
+    ['1. Prépare ton mois', '<p>Va dans l’onglet <strong>Budget mensuel</strong> :</p><p>• indique le jour du mois où tu reçois ton revenu ;<br>• ajoute tes revenus, tes charges fixes et tes charges exceptionnelles ;<br>• renseigne le solde reporté (ce qui restait de la période précédente).</p><p>Chaque ligne peut être modifiée ou supprimée. Quand une charge est payée, coche-la : elle passe en vert.</p>'],
+    ['2. Note tes dépenses', '<p>Dans <strong>Budget jour</strong>, saisis ce que tu dépenses chaque jour (tes charges fixes n’ont pas à y figurer).</p><p>Le tableau montre pour chaque jour : dépensé, maximum, écart et solde. Tu peux aussi écrire une note pour la période.</p>'],
+    ['3. Lis ton tableau de bord', '<p>Le <strong>Tableau de bord</strong> affiche ton budget du jour et ce qui te reste.</p><p>La <strong>norme</strong> est la somme des écarts (budget du jour moins dépensé) des jours écoulés : positive, tu as dépensé moins que prévu ; négative, tu as dépassé.</p>'],
+    ['4. Chaque nouvelle période', '<p>Au début de chaque période, utilise le bouton <strong>Démarrer la nouvelle période</strong> (onglet Budget mensuel) : il reporte le reste et décoche les charges payées.</p><p>Tu t’es trompé ? Le bouton d’annulation remet tout comme avant.</p>'],
+    ['5. Protège tes données', '<p>Tes données sont enregistrées <strong>uniquement sur cet appareil</strong>. Si tu effaces les données du navigateur ou désinstalles l’app, elles disparaissent.</p><p>En bas de page, <strong>Exporter mes données</strong> crée un fichier de sauvegarde ; <strong>Importer un fichier</strong> le recharge. Fais-le régulièrement.</p><p>Tu peux rouvrir ce guide avec le bouton <strong>Tutoriel</strong>.</p>']
+  ];
+  var tIdx = 0;
+  function tutoShow() {
+    var t = TUTO[tIdx];
+    document.getElementById('tuto-title').textContent = t[0];
+    document.getElementById('tuto-body').innerHTML = t[1];
+    document.getElementById('tuto-dots').innerHTML = TUTO.map(function (_, i) { return '<i class="' + (i === tIdx ? 'on' : '') + '"></i>'; }).join('');
+    document.getElementById('tuto-prev').style.visibility = tIdx === 0 ? 'hidden' : 'visible';
+    document.getElementById('tuto-next').textContent = tIdx === TUTO.length - 1 ? 'Terminer' : 'Suivant';
+  }
+  function tutoOpen() { tIdx = 0; tutoShow(); document.getElementById('tuto').classList.add('on'); document.getElementById('tuto-next').focus(); }
+  function tutoClose() { document.getElementById('tuto').classList.remove('on'); lsSet(DKEY, '1'); }
+  document.getElementById('btn-export').addEventListener('click', exportData);
+  document.getElementById('btn-import').addEventListener('click', function () { var f = document.getElementById('file-import'); f.value = ''; f.click(); });
+  document.getElementById('file-import').addEventListener('change', function (e) { var f = e.target.files && e.target.files[0]; if (f) readImport(f); });
+  document.getElementById('imp-ok').addEventListener('click', function () {
+    if (!pendingImport) return;
+    S = pendingImport; pendingImport = null; lsSet(PKEY, S.palette); applyPalette(); persist(); render();
+    document.getElementById('import-confirm').hidden = true; dmsg('Données importées.');
+  });
+  document.getElementById('imp-cancel').addEventListener('click', function () { pendingImport = null; document.getElementById('import-confirm').hidden = true; dmsg('Import annulé.'); });
+  document.getElementById('btn-help').addEventListener('click', tutoOpen);
+  document.getElementById('tuto-prev').addEventListener('click', function () { if (tIdx > 0) { tIdx--; tutoShow(); } });
+  document.getElementById('tuto-next').addEventListener('click', function () { if (tIdx < TUTO.length - 1) { tIdx++; tutoShow(); } else tutoClose(); });
+  document.getElementById('tuto-skip').addEventListener('click', tutoClose);
+  if (!lsGet(DKEY)) tutoOpen();
 
   /* ---------- Démarrage ---------- */
   var cached = lsGet(KEY);
