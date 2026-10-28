@@ -1,6 +1,6 @@
 {
-  "name": "Le Budget des 3 Piliers",
-  "short_name": "3 Piliers",
+  "name": "Jourly",
+  "short_name": "Jourly",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#F2F5F9",

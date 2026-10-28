@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1B5FA6">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="3 Piliers">
+<meta name="apple-mobile-web-app-title" content="Jourly">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Le Budget des 3 Piliers</title>
+<title>Jourly</title>
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html,body{margin:0}</style>
 <style>
 /* Layout : une colonne de pilotage (760px max). Une seule surface pleine couleur, le solde ;
@@ -205,14 +205,14 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
   </nav>
   <main id="view" role="tabpanel"></main>
   <details class="foot"><summary>Politique de confidentialité</summary><h2>Politique de confidentialité</h2>
-<p><strong>Dernière mise à jour : 13 octobre 2026</strong></p>
-<p>« Le Budget des 3 Piliers » est un outil de suivi de budget personnel.</p>
+<p><strong>Dernière mise à jour : 28 octobre 2026</strong></p>
+<p>« Jourly » (compagnon du e-book « Combien je peux dépenser aujourd’hui ? ») est un outil de suivi de budget personnel.</p>
 <p><strong>Données saisies.</strong> Tes revenus, charges, dépenses, notes et réglages.</p>
 <p><strong>Où elles sont stockées.</strong> Uniquement sur ton appareil, dans le stockage local de l’application.</p>
 <p><strong>Aucune collecte.</strong> L’application n’envoie aucune donnée à l’éditeur ni à un tiers. Elle n’a pas de compte utilisateur, pas de publicité et pas d’outil de mesure d’audience.</p>
 <p><strong>Suppression.</strong> Tu peux modifier ou supprimer chaque ligne dans l’application. Désinstaller l’application supprime ses données de ton appareil.</p>
 <p><strong>Information, pas conseil.</strong> L’application effectue des calculs à partir de tes propres chiffres. Elle ne donne pas de conseil financier et n’est reliée à aucune banque.</p>
-<p><strong>Contact.</strong> [adresse e-mail à compléter]</p></details>
+<p><strong>Contact.</strong> lorenzi.leo28@gmail.com</p></details>
 
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -338,7 +338,7 @@ tfoot td{font-weight:700;background:var(--surface2);border-bottom:0}
       var p = PALETTES[k];
       return '<button class="sw" role="radio" aria-checked="' + (S.palette === k) + '" aria-label="Thème ' + esc(p.nom) + '" title="' + esc(p.nom) + '" data-act="pal" data-pal="' + k + '" style="background:linear-gradient(135deg,' + p.a + ' 50%,' + p.b + ' 50%)"></button>';
     }).join('');
-    return '<div class="logo">' + LOGO + '<div><h1>Le Budget des 3 Piliers</h1><div class="sub">Prochain revenu le ' + fmtLong(c.next) + ' · dans ' + dn + ' jour' + (dn > 1 ? 's' : '') + '</div></div></div>' +
+    return '<div class="logo">' + LOGO + '<div><h1>Jourly</h1><div class="sub">Prochain revenu le ' + fmtLong(c.next) + ' · dans ' + dn + ' jour' + (dn > 1 ? 's' : '') + '</div></div></div>' +
       '<div class="right"><div class="swatches" role="radiogroup" aria-label="Thème de couleurs">' + sw + '</div>' +
       '<div class="sync ' + UI.sync + '" id="sync"><i></i><span>' + SYNC_TXT[UI.sync] + '</span></div></div>';
   }
